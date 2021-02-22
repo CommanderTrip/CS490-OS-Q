@@ -12,6 +12,9 @@ public class Main {
 
     public static void main(String[] args) {
         //gui main menu
+        GUI mainGUI = new GUI();
+        mainGUI.run();
+
         //File parser
         //create processes from parse
         //display to console the processes
