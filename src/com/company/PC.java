@@ -17,7 +17,8 @@ public class PC {
 
     //Method to start running the system
     public void start(){
-
+        CPU cpu1 = new CPU();
+        cpu1.GetProcess(this);
     }
 
     //Method to pause the system when it is running

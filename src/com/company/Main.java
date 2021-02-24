@@ -14,22 +14,17 @@ public class Main {
         //gui main menu
         GUI mainGUI = new GUI();
         mainGUI.run();
-
-        //File parser
-        //create processes from parse
-        //display to console the processes
-        //Gui display processes
-
-
+        
         //Get user inputted file name
         Scanner userInput = new Scanner(System.in);
         System.out.println("Enter the file path: ");
         String filePath = userInput.nextLine();
         System.out.println("File path entered: " + filePath);
+
+        //Create PC and read data into it's process queue
         PC pc1 = new PC();
         pc1.ReadFromFile(filePath);
-        CPU cpu1 = new CPU();
-        cpu1.GetProcess(pc1);
+        pc1.start();
 
         System.out.println("Main program exiting.");
         System.exit(0);
