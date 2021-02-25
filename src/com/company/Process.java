@@ -14,12 +14,13 @@ public class Process implements Runnable {
     }
 
     public void run() {
-        System.out.println(" Running process  " + processID + " for " + serviceTime + " seconds.");
+        //System.out.println(" Running process  " + processID + " for " + serviceTime + " seconds.");
         try {
-            Thread.sleep((serviceTime * 1000));
+            //Currently running 10x faster
+            Thread.sleep((serviceTime * 100));
         } catch (InterruptedException ex) {
             //Catch this later?
         }
-        System.out.println(" Process " + processID + " has finished execution.");
+        //System.out.println(" Process " + processID + " has finished execution.");
     }
 }
