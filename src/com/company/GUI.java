@@ -2,10 +2,13 @@ package com.company;
 
 import javax.naming.ldap.Control;
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class GUI extends DefaultTableModel {
 
@@ -20,10 +23,10 @@ public class GUI extends DefaultTableModel {
     private JLabel timeunit;
     private JLabel timeunit2;
     private JTextField timeUnitField;
-    private JPanel cpuPanel;
-    private JLabel timeRemaining;
-    private JLabel exec;
-    private JLabel cpu;
+    private JPanel cpuPanel1;
+    private JLabel timeRemaining1;
+    private JLabel exec1;
+    private JLabel cpu1;
     private DefaultTableModel tableModel;
     private JTable table;
     private JScrollPane scrollQueue;
@@ -31,10 +34,20 @@ public class GUI extends DefaultTableModel {
     public JTextArea reports;
     private JScrollPane scrollPane1;
     String result;
+    int cpuNumber1;
+    String execStatus1;
+    int tRemaining1;
+    int cpuNumber2;
+    String execStatus2;
+    int tRemaining2;
+
+    PC model;
 
 
-    public GUI() {
+    public GUI(PC model) {
         //run();
+        this.model = model;
+
         mainMenu = new JFrame("CPU Processor");
         mainMenu.setSize(1000, 750);
         mainMenu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -88,32 +101,63 @@ public class GUI extends DefaultTableModel {
         main.add(time, c);
 
         //CPU Panel (Will change this to a function later to create multiple CPUs and pass in variables)
-        int cpuNumber = 1;
-        String execStatus = "idle";
-        String tRemaining = "8";
+        cpuNumber1 = 1;
+        execStatus1 = model.cpu1.getStatus();
+        tRemaining1 = 0;
 
-        cpuPanel = new JPanel(new GridLayout(3, 1));
-        cpuPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        cpuPanel.setPreferredSize(new Dimension(200, 100));
-        cpuPanel.setBackground(new Color(255, 204, 204));
+        cpuPanel1 = new JPanel(new GridLayout(3, 1));
+        cpuPanel1.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        cpuPanel1.setPreferredSize(new Dimension(200, 100));
+        cpuPanel1.setBackground(new Color(255, 204, 204));
 
-        cpu = new JLabel();  //CPU label
-        cpu.setText(" CPU " + cpuNumber);
-        cpuPanel.add(cpu);
+        cpu1 = new JLabel();  //CPU label
+        cpu1.setText(model.cpu1.getName());
+        cpuPanel1.add(cpu1);
 
-        exec = new JLabel(); //Current process executing
-        exec.setText(" exec: " + execStatus);
-        cpuPanel.add(exec);
+        JLabel exec1 = new JLabel(); //Current process executing
+        exec1.setText(execStatus1);
+        //exec.addPropertyChangeListener("value", this);
+        cpuPanel1.add(exec1);
 
-        timeRemaining = new JLabel();    //Time remaining for current process
-        timeRemaining.setText(" time remaining: " + tRemaining);
-        cpuPanel.add(timeRemaining);
+        timeRemaining1 = new JLabel();    //Time remaining for current process
+        timeRemaining1.setText(" Time remaining: " + tRemaining1);
+        cpuPanel1.add(timeRemaining1);
 
         c.gridx = 2;
         c.gridy = 2;
         c.weightx = 10;
         c.weighty = 5;
-        main.add(cpuPanel, c);
+        main.add(cpuPanel1, c);
+
+        //        CPU PANEL 2
+        cpuNumber2 = 2;
+        execStatus2 = model.cpu2.getStatus();
+        tRemaining2 = model.cpu2.getRunThis().getServiceTime();
+
+        JPanel cpuPanel2 = new JPanel(new GridLayout(3, 1));
+        cpuPanel2.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        cpuPanel2.setPreferredSize(new Dimension(200, 100));
+        cpuPanel2.setBackground(new Color(255, 204, 204));
+
+        JLabel cpu2 = new JLabel();  //CPU label
+        cpu2.setText(model.cpu2.getName());
+        cpuPanel2.add(cpu2);
+
+        JLabel exec2 = new JLabel(); //Current process executing
+        exec2.setText(execStatus2);
+        //exec.addPropertyChangeListener("value", this);
+        cpuPanel2.add(exec2);
+
+        JLabel timeRemaining2 = new JLabel();    //Time remaining for current process
+        timeRemaining2.setText(" Time remaining: " + tRemaining2);
+        //timeRemaining.addPropertyChangeListener("value", this);
+        cpuPanel2.add(timeRemaining2);
+
+        c.gridx = 2;
+        c.gridy = 4;
+        c.weightx = 10;
+        c.weighty = 5;
+        main.add(cpuPanel2, c);
 
         String[] columnNames = {"Process Name", "Service Time"};
 
@@ -147,12 +191,34 @@ public class GUI extends DefaultTableModel {
 
         mainMenu.setVisible(true);
 
-        result = JOptionPane.showInputDialog(mainMenu, "Enter the file path: ");
+        try{
+            result = JOptionPane.showInputDialog(mainMenu, "Enter the file path: ");
+        } catch (HeadlessException e) {
+            System.out.println("Error opening file.");
+        }
+
         if (result == null) {
             return;
         }
         reports.append("File Path entered: " + result + "\n");
 
+        model.cpu1.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                //updateTableView();
+                //updateCPU();
+                exec1.setText("exec: " +model.cpu1.getRunThis().getProcessID());
+                timeRemaining1.setText(" Time remaining: " + model.cpu1.getRunTime());
+            }
+        });
+
+        model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                //updateTableView();
+                //updateCPU();
+                exec2.setText("exec: " +model.cpu2.getRunThis().getProcessID());
+                timeRemaining2.setText(" Time remaining: " + model.cpu2.getRunTime());
+            }
+        });
         pauseSystem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -165,6 +231,7 @@ public class GUI extends DefaultTableModel {
                 status.setText("System Running");
             }
         });
+
     }
 
     public void run() {
@@ -180,10 +247,22 @@ public class GUI extends DefaultTableModel {
 
     public DefaultTableModel getTableModel() {
         return tableModel;
-
     }
 
     public JButton getStartSystem() {
         return startSystem;
+    }
+
+    public void setExecStatus(String s){
+        this.execStatus1 = s;
+        }
+    public String getExecStatus(){
+        return this.execStatus1;
+    }
+    public void setTRemaining(int i){
+        this.tRemaining1 = i;
+    }
+    public int gettRemaining(){
+        return this.tRemaining1;
     }
 }
