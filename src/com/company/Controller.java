@@ -12,9 +12,8 @@ public class Controller {
     public Controller(PC model, GUI view) {
         this.model = model;
         this.view = view;
-        //view.getFilePath();
         this.createQueue();
-        this.populateTable();
+        view.loadTableData();
         view.startSystem.addActionListener(new ActionListener() {
             //Action listener for the start button on the GUI.
             @Override
@@ -22,16 +21,15 @@ public class Controller {
                 //If the process queue is not empty: do these things
                 if (!model.processQueue.isEmpty()) {
                     model.start();
-                    view.reports.append(model.cpu1.getRunThis().getProcessID()
-                            + " ran for:  " + model.cpu1.getRunThis().getServiceTime() + " seconds." + "\n");
+                    //view.reports.append(model.cpu1.getRunThis().getProcessID()
+                    //        + " ran for:  " + model.cpu1.getRunThis().getServiceTime() + " seconds." + "\n");
                 }
-                view.updateTableView();
-                populateTable();
+
             }
         });
     }
     //Initial creation of the process queue from a user inputted file path
-    public void createQueue() {model.processQueue = model.ReadFromFile(view.getFilePath());}
+    public void createQueue() {model.ReadFromFile(view.getFilePath());}
 
     //Returns the process queue
     public ArrayList<Process> getQueue() {return model.processQueue;}
@@ -40,12 +38,12 @@ public class Controller {
     public void updateTableView() {view.updateTableView();}
 
     //Method to populate the table of processes in the GUI
-    public void populateTable() {
+    /*public void populateTable() {
         DefaultTableModel table = view.getTableModel();
         for (int i = 0; i < model.processQueue.size(); i++) {
             table.addRow(new Object[]{String.valueOf(model.processQueue.get(i).getProcessID()), model.processQueue.get(i).getServiceTime()});
         }
-    }
+    }*/
 
     public PC getModel(){
         return this.model;

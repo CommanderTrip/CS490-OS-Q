@@ -1,8 +1,11 @@
 package com.company;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class PC {
@@ -13,6 +16,7 @@ public class PC {
     public CPU cpu1;
     public int timeScale;
     public CPU cpu2;
+    private PropertyChangeSupport c = new PropertyChangeSupport(this);
 
     //Constructor
     public PC() {
@@ -46,7 +50,7 @@ public class PC {
     }
 
     //Method to populate linked list of processes from CSV file
-    public ArrayList<Process> ReadFromFile(String path) {
+    public void ReadFromFile(String path) {
         ArrayList<Process> q = new ArrayList<>();
         BufferedReader fileReader;
         String fromFile = null;
@@ -55,7 +59,7 @@ public class PC {
         } catch (Exception e) {
             System.out.println("Error opening file.");
             System.exit(-1);
-            return q;
+            return;
         }
         while (true) {
             try {
@@ -68,9 +72,17 @@ public class PC {
             //temp processes while reading file to be added to queue
             Process proc = new Process(Integer.parseInt(string[0]), string[1], Integer.parseInt(string[2]), Integer.parseInt(string[3]));
             q.add(proc);
+            this.setProcessQueue(q);
             System.out.println("Inside loop print: " + proc.getArrivalTime() + ", " + proc.getProcessID() + ", " + proc.getServiceTime() + ", " + proc.getPriority());
         }
-        System.out.println(q.size() + " processes added to the queue.");
-        return q;
+        System.out.println(this.processQueue.size() + " processes added to the queue.");
     }
+    public void addPropertyChangeListener(PropertyChangeListener pcl){
+        c.addPropertyChangeListener(pcl);
+    }
+    public void removePropertyChangeListener(PropertyChangeListener pcl){
+        c.removePropertyChangeListener(pcl);
+    }
+    public void setProcessQueue(ArrayList<Process> pq){this.processQueue = pq;}
+    public ArrayList<Process> getProcessQueue(){return this.processQueue;}
 }

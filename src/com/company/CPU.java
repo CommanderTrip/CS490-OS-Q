@@ -10,7 +10,7 @@ public class CPU implements Runnable{
     private Process runThis;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
     private ArrayList<Process> processQueue;
-    private int timeScale = 100;
+    private int timeScale = 500;
     private int runTime;
 
     public CPU(){
@@ -46,7 +46,6 @@ public class CPU implements Runnable{
             this.setStatus("Running");
             System.out.println(this.name +" running " + p.getProcessID() + " for " + p.getServiceTime());
             pt.join();
-
             Thread.sleep((p.getServiceTime() * timeScale));
             this.setStatus("idle");
             this.setRunTime(0);
@@ -58,6 +57,7 @@ public class CPU implements Runnable{
     }
     public void addPropertyChangeListener(PropertyChangeListener pcl){c.addPropertyChangeListener(pcl);}
     public void removePropertyChangeListener(PropertyChangeListener pcl){c.removePropertyChangeListener(pcl);}
+
     public void setProcess(Process newProcess){
         Process oldProcess = this.runThis;
         this.runThis = newProcess;
@@ -79,7 +79,7 @@ public class CPU implements Runnable{
     public String getName(){return this.name;}
     public void setName(String s){this.name = s;}
     public int getRunTime(){return this.runTime;}
-    public void setRunTime(int newRunTime){
+    public void setRunTime(int newRunTime) {
         int oldRunTime = this.runTime;
         this.runTime = newRunTime;
         c.firePropertyChange("runTime", oldRunTime, newRunTime);

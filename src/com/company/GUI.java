@@ -162,12 +162,13 @@ public class GUI extends DefaultTableModel {
         String[] columnNames = {"Process Name", "Service Time"};
 
         //TODO: Make the table uneditable
-        tableModel = new DefaultTableModel();
+        tableModel = new DefaultTableModel(0,2);
         table = new JTable(tableModel);
 
         tableModel.setColumnIdentifiers(columnNames);
+        //tableModel.addRow();
         //table.getTableHeader().setReorderingAllowed(false);
-        //table.setModel(tableModel);
+        table.setModel(tableModel);
         //scrollQueue = new JScrollPane(table);
         //add(scrollQueue, BorderLayout.CENTER);
 
@@ -204,8 +205,7 @@ public class GUI extends DefaultTableModel {
 
         model.cpu1.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                //updateTableView();
-                //updateCPU();
+                updateTableView();
                 exec1.setText("exec: " +model.cpu1.getRunThis().getProcessID());
                 timeRemaining1.setText(" Time remaining: " + model.cpu1.getRunTime());
             }
@@ -213,8 +213,7 @@ public class GUI extends DefaultTableModel {
 
         model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                //updateTableView();
-                //updateCPU();
+                updateTableView();
                 exec2.setText("exec: " +model.cpu2.getRunThis().getProcessID());
                 timeRemaining2.setText(" Time remaining: " + model.cpu2.getRunTime());
             }
@@ -242,7 +241,13 @@ public class GUI extends DefaultTableModel {
     }
 
     public void updateTableView() {
-        tableModel.setRowCount(0);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                tableModel.setRowCount(0);
+                loadTableData();
+            }
+        });
     }
 
     public DefaultTableModel getTableModel() {
@@ -264,5 +269,12 @@ public class GUI extends DefaultTableModel {
     }
     public int gettRemaining(){
         return this.tRemaining1;
+    }
+
+    public synchronized void loadTableData(){
+        for (int i = 0; i < model.processQueue.size(); i++) {
+            tableModel.addRow(new Object[]{String.valueOf(model.processQueue.get(i).getProcessID()), model.processQueue.get(i).getServiceTime()});
+        }
+        table.setModel(tableModel);
     }
 }
