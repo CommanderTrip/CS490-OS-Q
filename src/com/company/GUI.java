@@ -45,7 +45,6 @@ public class GUI extends DefaultTableModel {
 
 
     public GUI(PC model) {
-        //run();
         this.model = model;
 
         mainMenu = new JFrame("CPU Processor");
@@ -88,6 +87,12 @@ public class GUI extends DefaultTableModel {
         timeunit = new JLabel();
         timeunit.setText("1 time unit = ");
         timeUnitField = new JTextField(10);
+        timeUnitField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
         timeunit2 = new JLabel();
         timeunit2.setText("ms");
         time.add(timeunit);
