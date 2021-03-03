@@ -14,7 +14,7 @@ public class PC {
     public int currentTime;
     public ArrayList<Process> processQueue;
     public CPU cpu1;
-    public int timeScale;
+    //public int timeScale;
     public CPU cpu2;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
 
@@ -68,12 +68,15 @@ public class PC {
                 System.out.println("Reached end of file.");
             }
             //Split each line by ", " -- space after the comma is important here and in text file must match
-            String[] string = fromFile.split(", ");
+            try{
+                String[] string = fromFile.split(", ");
+                Process proc = new Process(Integer.parseInt(string[0]), string[1], Integer.parseInt(string[2]), Integer.parseInt(string[3]));
+                q.add(proc);
+                this.setProcessQueue(q);
+            }
+            catch(NullPointerException e){System.out.println("NullPTR during splitting");}
             //temp processes while reading file to be added to queue
-            Process proc = new Process(Integer.parseInt(string[0]), string[1], Integer.parseInt(string[2]), Integer.parseInt(string[3]));
-            q.add(proc);
-            this.setProcessQueue(q);
-            System.out.println("Inside loop print: " + proc.getArrivalTime() + ", " + proc.getProcessID() + ", " + proc.getServiceTime() + ", " + proc.getPriority());
+            //System.out.println("Inside loop print: " + proc.getArrivalTime() + ", " + proc.getProcessID() + ", " + proc.getServiceTime() + ", " + proc.getPriority());
         }
         System.out.println(this.processQueue.size() + " processes added to the queue.");
     }
@@ -85,4 +88,6 @@ public class PC {
     }
     public void setProcessQueue(ArrayList<Process> pq){this.processQueue = pq;}
     public ArrayList<Process> getProcessQueue(){return this.processQueue;}
+    //public void setTimeScale(int i){this.timeScale = i;}
+    //public int getTimeScale(){return this.timeScale;}
 }

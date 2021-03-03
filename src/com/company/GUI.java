@@ -86,11 +86,11 @@ public class GUI extends DefaultTableModel {
         time.setBackground(new Color(230, 245, 255));
         timeunit = new JLabel();
         timeunit.setText("1 time unit = ");
-        timeUnitField = new JTextField(10);
+        timeUnitField = new JTextField(Integer.toString(model.cpu1.getTimeScale()),10);
         timeUnitField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                model.cpu1.setTimeScale(Integer.parseInt(timeUnitField.getText()));
             }
         });
         timeunit2 = new JLabel();
@@ -249,8 +249,10 @@ public class GUI extends DefaultTableModel {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+
                 tableModel.setRowCount(0);
                 loadTableData();
+
             }
         });
     }
@@ -277,9 +279,11 @@ public class GUI extends DefaultTableModel {
     }
 
     public synchronized void loadTableData(){
-        for (int i = 0; i < model.processQueue.size(); i++) {
-            tableModel.addRow(new Object[]{String.valueOf(model.processQueue.get(i).getProcessID()), model.processQueue.get(i).getServiceTime()});
-        }
-        table.setModel(tableModel);
+        try {
+            for (int i = 0; i < model.processQueue.size(); i++) {
+                tableModel.addRow(new Object[]{String.valueOf(model.processQueue.get(i).getProcessID()), model.processQueue.get(i).getServiceTime()});
+            }
+            table.setModel(tableModel);
+        } catch (IndexOutOfBoundsException e){System.out.println("Out of bounds");}
     }
 }

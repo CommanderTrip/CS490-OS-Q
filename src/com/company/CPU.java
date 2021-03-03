@@ -10,7 +10,7 @@ public class CPU implements Runnable{
     private Process runThis;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
     private ArrayList<Process> processQueue;
-    private int timeScale = 500;
+    private int timeScale = 100;
     private int runTime;
 
     public CPU(){
