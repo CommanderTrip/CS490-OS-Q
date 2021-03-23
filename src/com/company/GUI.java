@@ -91,6 +91,7 @@ public class GUI extends DefaultTableModel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 model.cpu1.setTimeScale(Integer.parseInt(timeUnitField.getText()));
+                model.cpu2.setTimeScale(Integer.parseInt(timeUnitField.getText()));
             }
         });
         timeunit2 = new JLabel();

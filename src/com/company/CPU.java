@@ -2,7 +2,10 @@ package com.company;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class CPU implements Runnable{
     private String name;
@@ -45,8 +48,29 @@ public class CPU implements Runnable{
         try {
             this.setStatus("Running");
             System.out.println(this.name +" running " + p.getProcessID() + " for " + p.getServiceTime());
+
+            // Print arrival time
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
+            Date arrivalTime = new Date();
+            System.out.println(this.name + " " + p.getProcessID() + " arrival time: " +  formatter.format(arrivalTime));
+
             pt.join();
-            Thread.sleep((p.getServiceTime() * timeScale));
+            Thread.sleep(((long) p.getServiceTime() * timeScale));
+
+            // Print the Finish time
+            Date finishTime = new Date();
+            System.out.println(this.name + " " + p.getProcessID() + " finish time: " +  formatter.format(finishTime));
+
+            // Turnaround time
+            Duration tat = Duration.between(arrivalTime.toInstant(), finishTime.toInstant());
+            System.out.println(this.name + " " + p.getProcessID() + " TAT: " +  tat.getSeconds());
+
+            // Normalized Turnaround time
+            long nTat = tat.getSeconds() / p.getServiceTime();
+            System.out.println(this.name + " " + p.getProcessID() + " nTAT: " +  nTat);
+
+            // Current Throughput???
+
             this.setStatus("idle");
             this.setRunTime(0);
 
