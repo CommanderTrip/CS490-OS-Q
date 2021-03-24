@@ -49,24 +49,26 @@ public class CPU implements Runnable{
             this.setStatus("Running");
             System.out.println(this.name +" running " + p.getProcessID() + " for " + p.getServiceTime());
 
-            // Print arrival time
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS");
-            Date arrivalTime = new Date();
-            System.out.println(this.name + " " + p.getProcessID() + " arrival time: " +  formatter.format(arrivalTime));
+            Clock clock = Clock.getInstance();
 
+            // Print arrival time
+            int arrivalTime = clock.getTime();
+            System.out.println(this.name + " " + p.getProcessID() + " arrival time: " +  arrivalTime);
+
+            // Let the job complete
             pt.join();
             Thread.sleep(((long) p.getServiceTime() * timeScale));
 
             // Print the Finish time
-            Date finishTime = new Date();
-            System.out.println(this.name + " " + p.getProcessID() + " finish time: " +  formatter.format(finishTime));
+            int finishTime = clock.getTime();
+            System.out.println(this.name + " " + p.getProcessID() + " finish time: " +  finishTime);
 
             // Turnaround time
-            Duration tat = Duration.between(arrivalTime.toInstant(), finishTime.toInstant());
-            System.out.println(this.name + " " + p.getProcessID() + " TAT: " +  tat.getSeconds());
+            float tat = finishTime - arrivalTime;
+            System.out.println(this.name + " " + p.getProcessID() + " TAT: " +  tat );
 
             // Normalized Turnaround time
-            long nTat = tat.getSeconds() / p.getServiceTime();
+            float nTat =  tat / p.getServiceTime();
             System.out.println(this.name + " " + p.getProcessID() + " nTAT: " +  nTat);
 
             // Current Throughput???

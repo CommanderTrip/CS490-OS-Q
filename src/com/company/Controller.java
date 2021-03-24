@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class Controller {
     public PC model;
     public GUI view;
+    public Clock clock;
 
     public Controller(PC model, GUI view) {
         this.model = model;
@@ -21,6 +22,12 @@ public class Controller {
                 //If the process queue is not empty: do these things
                 if (!model.processQueue.isEmpty()) {
                     model.start();
+
+                    // Get the clock and set a thread for it.
+                    Clock clock = Clock.getInstance();
+                    Thread clockThread = new Thread(clock);
+                    clockThread.start();
+
                     //view.reports.append(model.cpu1.getRunThis().getProcessID()
                     //        + " ran for:  " + model.cpu1.getRunThis().getServiceTime() + " seconds." + "\n");
                 }

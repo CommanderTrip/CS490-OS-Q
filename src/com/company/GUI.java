@@ -92,6 +92,8 @@ public class GUI extends DefaultTableModel {
             public void actionPerformed(ActionEvent e) {
                 model.cpu1.setTimeScale(Integer.parseInt(timeUnitField.getText()));
                 model.cpu2.setTimeScale(Integer.parseInt(timeUnitField.getText()));
+                Clock clock = Clock.getInstance();
+                clock.setTimeStep(Integer.parseInt(timeUnitField.getText()));
             }
         });
         timeunit2 = new JLabel();
@@ -224,12 +226,16 @@ public class GUI extends DefaultTableModel {
                 timeRemaining2.setText(" Time remaining: " + model.cpu2.getRunTime());
             }
         });
+
+        // Pause the System
         pauseSystem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 status.setText("System Paused");
             }
         });
+
+        // Start and play the system
         startSystem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
