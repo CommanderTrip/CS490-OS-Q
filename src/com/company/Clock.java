@@ -11,7 +11,7 @@ public final class Clock implements Runnable {
 
     private Clock() {
         time = 0;
-        timeStep = 0;
+        timeStep = 100;
     }
 
     public static Clock getInstance() {

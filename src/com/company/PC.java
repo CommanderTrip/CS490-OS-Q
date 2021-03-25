@@ -13,6 +13,7 @@ public class PC {
     public int startTime;
     public int currentTime;
     public ArrayList<Process> processQueue;
+    public ArrayList<Process> finishedList;
     public CPU cpu1;
     //public int timeScale;
     public CPU cpu2;
@@ -23,8 +24,9 @@ public class PC {
         startTime = 0;
         currentTime = 0;
         ArrayList<Process> processQueue = new ArrayList<>();
-        cpu1 = new CPU("cpu1", processQueue);
-        cpu2 = new CPU("cpu2", processQueue);
+        ArrayList<Process> finishedList = new ArrayList<>();
+        cpu1 = new CPU("cpu1", processQueue, finishedList);
+        cpu2 = new CPU("cpu2", processQueue, finishedList);
     }
 
 
@@ -32,6 +34,9 @@ public class PC {
     public void start(){
         if (!cpu1.getProcessQueue().equals(processQueue)){cpu1.setProcessQueue(processQueue);}
         if (!cpu2.getProcessQueue().equals(processQueue)){cpu2.setProcessQueue(processQueue);}
+        //if (!cpu1.getFinishedList().equals(finishedList)){cpu1.setFinishedList(finishedList);}
+       // if (!cpu2.getFinishedList().equals(finishedList)){cpu2.setFinishedList(finishedList);}
+
         //currentTime = currentTime + cpu1.runThis.serviceTime;
         Thread thread1 = new Thread(cpu1);
         Thread thread2 = new Thread(cpu2);
@@ -88,6 +93,8 @@ public class PC {
     }
     public void setProcessQueue(ArrayList<Process> pq){this.processQueue = pq;}
     public ArrayList<Process> getProcessQueue(){return this.processQueue;}
+    public void setFinishedList(ArrayList<Process> fl){this.finishedList = fl;}
+    public ArrayList<Process> getFinishedList(){return this.finishedList;}
     //public void setTimeScale(int i){this.timeScale = i;}
     //public int getTimeScale(){return this.timeScale;}
 }

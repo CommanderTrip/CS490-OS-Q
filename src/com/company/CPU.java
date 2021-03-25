@@ -13,15 +13,17 @@ public class CPU implements Runnable{
     private Process runThis;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
     private ArrayList<Process> processQueue;
+    private ArrayList<Process> finishedList;
     private int timeScale = 100;
     private int runTime;
 
     public CPU(){
     }
 
-    public CPU(String name, ArrayList<Process> processQueue){
+    public CPU(String name, ArrayList<Process> processQueue, ArrayList<Process> finishedList){
         this.name = name;
         this.processQueue = processQueue;
+        this.finishedList = finishedList;
         this.status = "idle";
         this.runThis = new Process(0, "empty", 0, 0 );
     }
@@ -60,19 +62,20 @@ public class CPU implements Runnable{
             Thread.sleep(((long) p.getServiceTime() * timeScale));
 
             // Print the Finish time
-            int finishTime = clock.getTime();
-            System.out.println(this.name + " " + p.getProcessID() + " finish time: " +  finishTime);
+            p.setFinishTime(clock.getTime());
+            System.out.println(this.name + " " + p.getProcessID() + " finish time: " +  p.getFinishTime());
 
             // Turnaround time
-            float tat = finishTime - arrivalTime;
-            System.out.println(this.name + " " + p.getProcessID() + " TAT: " +  tat );
+            p.setTat(p.getFinishTime() - arrivalTime);
+            System.out.println(this.name + " " + p.getProcessID() + " TAT: " +  p.getTat() );
 
             // Normalized Turnaround time
-            float nTat =  tat / p.getServiceTime();
-            System.out.println(this.name + " " + p.getProcessID() + " nTAT: " +  nTat);
+            p.setnTat(p.getTat() / p.getServiceTime());
+            System.out.println(this.name + " " + p.getProcessID() + " nTAT: " +  p.getnTat());
 
             // Current Throughput???
-
+            finishedList.add(p);
+            System.out.println("flist size:" + finishedList.size());
             this.setStatus("idle");
             this.setRunTime(0);
 
@@ -98,6 +101,8 @@ public class CPU implements Runnable{
     public int getTime(){return runThis.getServiceTime();}
     public void setProcessQueue(ArrayList<Process> pq){this.processQueue = pq;}
     public ArrayList<Process> getProcessQueue(){ return this.processQueue;}
+    public void setFinishedList(ArrayList<Process> fl){this.finishedList = fl;}
+    public ArrayList<Process> getFinishedList(){ return this.finishedList;}
     public void setTimeScale(int i){this.timeScale = i;}
     public int getTimeScale(){return this.timeScale;}
     public Process getRunThis(){return this.runThis;}

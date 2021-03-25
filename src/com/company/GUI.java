@@ -207,6 +207,7 @@ public class GUI extends DefaultTableModel {
         model.cpu1.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 updateQueueTableView();
+                updateFinishedList();
                 exec1.setText("exec: " +model.cpu1.getRunThis().getProcessID());
                 timeRemaining1.setText(" Time remaining: " + model.cpu1.getRunTime());
             }
@@ -215,6 +216,7 @@ public class GUI extends DefaultTableModel {
         model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 updateQueueTableView();
+                updateFinishedList();
                 exec2.setText("exec: " +model.cpu2.getRunThis().getProcessID());
                 timeRemaining2.setText(" Time remaining: " + model.cpu2.getRunTime());
             }
@@ -256,6 +258,16 @@ public class GUI extends DefaultTableModel {
             }
         });
     }
+    public void updateFinishedList() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+
+                reportsTableModel.setRowCount(0);
+                loadFinishedList();
+            }
+        });
+    }
 
     public DefaultTableModel getQueueTableModel() {
         return queueTableModel;
@@ -285,5 +297,19 @@ public class GUI extends DefaultTableModel {
             }
             queueTable.setModel(queueTableModel);
         } catch (IndexOutOfBoundsException e){System.out.println("Out of bounds");}
+    }
+    public synchronized void loadFinishedList(){
+        try {
+            for (int i = 0; i < model.cpu1.getFinishedList().size(); i++) {
+                reportsTableModel.addRow(new Object[]{String.valueOf(model.cpu1.getFinishedList().get(i).getProcessID()),
+                        model.cpu1.getFinishedList().get(i).getServiceTime(), model.cpu1.getFinishedList().get(i).getArrivalTime(),
+                        model.cpu1.getFinishedList().get(i).getFinishTime(),  model.cpu1.getFinishedList().get(i).getTat(),
+                        model.cpu1.getFinishedList().get(i).getnTat()});
+                //System.out.println("asdf:" + i);
+            }
+            reportsTable.setModel(reportsTableModel);
+        } catch (IndexOutOfBoundsException e){System.out.println("FinishedList Out of bounds");
+        } catch (NullPointerException e) {System.out.println("FinishedList nullptr");}
+        //System.out.println("flist size:" + model.cpu1.getFinishedList().size());
     }
 }

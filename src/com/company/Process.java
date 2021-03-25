@@ -8,6 +8,9 @@ public class Process implements Runnable {
     private String processID;
     private int serviceTime;
     private int priority;
+    private int finishTime;
+    private float tat;
+    private float nTat;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
 
     Process(){}
@@ -54,4 +57,28 @@ public class Process implements Runnable {
     public void setArrivalTime(int i){this.arrivalTime = i;}
     public int getPriority(){return this.priority;}
     public void setPriority(int i){this.priority = i;}
+
+    public float getTat() {
+        return tat;
+    }
+
+    public void setTat(float tat) {
+        this.tat = tat;
+    }
+
+    public float getnTat() {
+        return nTat;
+    }
+
+    public void setnTat(float nTat) {
+        this.nTat = nTat;
+    }
+
+    public int getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(int finishTime) {
+        this.finishTime = finishTime;
+    }
 }
