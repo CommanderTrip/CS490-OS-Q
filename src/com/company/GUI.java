@@ -1,8 +1,6 @@
 package com.company;
 
-import javax.naming.ldap.Control;
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -25,14 +23,14 @@ public class GUI extends DefaultTableModel {
     private JTextField timeUnitField;
     private JPanel cpuPanel1;
     private JLabel timeRemaining1;
-    private JLabel exec1;
     private JLabel cpu1;
-    private DefaultTableModel tableModel;
-    private JTable table;
-    private JScrollPane scrollQueue;
-    private JScrollPane scrollPane;
-    public JTextArea reports;
-    private JScrollPane scrollPane1;
+    private JPanel tables;
+    private DefaultTableModel queueTableModel;
+    private DefaultTableModel reportsTableModel;
+    private JTable queueTable;
+    private JTable reportsTable;
+    private JScrollPane queueScrollPane;
+    private JScrollPane reportsScrollPane;
     String result;
     int cpuNumber1;
     String execStatus1;
@@ -58,6 +56,7 @@ public class GUI extends DefaultTableModel {
         c = new GridBagConstraints();
         c.insets = new Insets(20, 0, 0, 0);    //Padding between edge of window and top row
 
+
         //Status Label
         status = new JLabel();
         status.setText("System Starting...");
@@ -67,7 +66,7 @@ public class GUI extends DefaultTableModel {
         main.add(status, c);
 
         //Button Panel
-        buttonPanel = new JPanel(new GridLayout(1, 2, 45, 0));
+        buttonPanel = new JPanel(new GridLayout(1, 3, 45, 0));
         buttonPanel.setBackground(new Color(230, 245, 255));
 
         startSystem = new JButton("Start System");  //Start Button
@@ -162,42 +161,36 @@ public class GUI extends DefaultTableModel {
         cpuPanel2.add(timeRemaining2);
 
         c.gridx = 2;
-        c.gridy = 4;
+        c.gridy = 3;
         c.weightx = 10;
         c.weighty = 5;
         main.add(cpuPanel2, c);
 
-        String[] columnNames = {"Process Name", "Service Time"};
+        tables = new JPanel(new GridLayout(2,1));
+        tables.setPreferredSize(new Dimension(500,600));
 
-        //TODO: Make the table uneditable
-        tableModel = new DefaultTableModel(0,2);
-        table = new JTable(tableModel);
+        //Process Queue
+        String[] queueColumnNames = {"Process Name", "Service Time"};
+        queueTableModel = new DefaultTableModel(0,2);
+        queueTableModel.setColumnIdentifiers(queueColumnNames);
+        queueTable = new JTable(queueTableModel);
+//        queueTable.setModel(queueTableModel);
+        queueScrollPane = new JScrollPane(queueTable);
+        tables.add(queueScrollPane);
 
-        tableModel.setColumnIdentifiers(columnNames);
-        //tableModel.addRow();
-        //table.getTableHeader().setReorderingAllowed(false);
-        table.setModel(tableModel);
-        //scrollQueue = new JScrollPane(table);
-        //add(scrollQueue, BorderLayout.CENTER);
+        //Reports Area
+        String[] reportsColumnNames = {"Process Name", "Arrival Time", "Service Time", "Finish Time", "TAT", "nTAT"};
+        reportsTableModel = new DefaultTableModel(0,6);
+        reportsTableModel.setColumnIdentifiers(reportsColumnNames);
+        reportsTable = new JTable(reportsTableModel);
+//        reportsTable.setModel(reportsTableModel);
+        reportsScrollPane = new JScrollPane(reportsTable);
+        tables.add(reportsScrollPane);
 
         c.gridx = 0;
         c.gridy = 1;
-        c.ipadx = 0;
-        c.gridheight = 2;
-        scrollPane = new JScrollPane(table);
-        main.add(scrollPane, c);
-
-        //Reports Area
-        reports = new JTextArea(10, 10);
-        scrollPane1 = new JScrollPane(reports);
-        reports.setEditable(false);
-        c.gridx = 0;
-        c.gridy = 3;
-        c.gridwidth = 2;
-        c.fill = 1;
-        c.insets = new Insets(0, 30, 30, 30);  //Adds padding around the text area
-        main.add(scrollPane1, c);
-
+        c.gridheight = 3;
+        main.add(tables, c);
         mainMenu.setVisible(true);
 
         try{
@@ -209,11 +202,11 @@ public class GUI extends DefaultTableModel {
         if (result == null) {
             return;
         }
-        reports.append("File Path entered: " + result + "\n");
+//        reports.append("File Path entered: " + result + "\n");
 
         model.cpu1.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                updateTableView();
+                updateQueueTableView();
                 exec1.setText("exec: " +model.cpu1.getRunThis().getProcessID());
                 timeRemaining1.setText(" Time remaining: " + model.cpu1.getRunTime());
             }
@@ -221,7 +214,7 @@ public class GUI extends DefaultTableModel {
 
         model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                updateTableView();
+                updateQueueTableView();
                 exec2.setText("exec: " +model.cpu2.getRunThis().getProcessID());
                 timeRemaining2.setText(" Time remaining: " + model.cpu2.getRunTime());
             }
@@ -252,20 +245,20 @@ public class GUI extends DefaultTableModel {
         return result;
     }
 
-    public void updateTableView() {
+    public void updateQueueTableView() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
 
-                tableModel.setRowCount(0);
-                loadTableData();
+                queueTableModel.setRowCount(0);
+                loadQueueTableData();
 
             }
         });
     }
 
-    public DefaultTableModel getTableModel() {
-        return tableModel;
+    public DefaultTableModel getQueueTableModel() {
+        return queueTableModel;
     }
 
     public JButton getStartSystem() {
@@ -285,12 +278,12 @@ public class GUI extends DefaultTableModel {
         return this.tRemaining1;
     }
 
-    public synchronized void loadTableData(){
+    public synchronized void loadQueueTableData(){
         try {
             for (int i = 0; i < model.processQueue.size(); i++) {
-                tableModel.addRow(new Object[]{String.valueOf(model.processQueue.get(i).getProcessID()), model.processQueue.get(i).getServiceTime()});
+                queueTableModel.addRow(new Object[]{String.valueOf(model.processQueue.get(i).getProcessID()), model.processQueue.get(i).getServiceTime()});
             }
-            table.setModel(tableModel);
+            queueTable.setModel(queueTableModel);
         } catch (IndexOutOfBoundsException e){System.out.println("Out of bounds");}
     }
 }

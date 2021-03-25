@@ -1,6 +1,5 @@
 package com.company;
 
-import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ public class Controller {
         this.model = model;
         this.view = view;
         this.createQueue();
-        view.loadTableData();
+        view.loadQueueTableData();
         view.startSystem.addActionListener(new ActionListener() {
             //Action listener for the start button on the GUI.
             @Override
@@ -42,7 +41,7 @@ public class Controller {
     public ArrayList<Process> getQueue() {return model.processQueue;}
 
     //Updates the GUI view of the table of processes
-    public void updateTableView() {view.updateTableView();}
+    public void updateTableView() {view.updateQueueTableView();}
 
     //Method to populate the table of processes in the GUI
     /*public void populateTable() {
