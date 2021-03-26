@@ -18,6 +18,9 @@ public class PC {
     //public int timeScale;
     public CPU cpu2;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
+    private Thread clockThread;
+    private Thread cpu1Thread;
+    private Thread cpu2Thread;
 
     //Constructor
     public PC() {
@@ -27,8 +30,43 @@ public class PC {
         ArrayList<Process> finishedList = new ArrayList<>();
         cpu1 = new CPU("cpu1", processQueue, finishedList);
         cpu2 = new CPU("cpu2", processQueue, finishedList);
+
+        // Initialize a clock thread
+        Clock clock = Clock.getInstance();
+        clockThread = getThread(clock);
+        clockThread = new Thread(clock);
+
+        // Initialized CPU Threads
+        cpu1Thread = new Thread(cpu1);
+        cpu2Thread = new Thread(cpu2);
+        cpu1Thread.start();
+        cpu2Thread.start();
     }
 
+    // Throw interrupts to the clock
+    public void throwClockInterrupt(){clockThread.interrupt();}
+
+    // Throw interrupts to the CPU
+    public void throwCPUInterrupt() {
+        cpu1Thread.interrupt();
+        cpu2Thread.interrupt();
+    }
+
+    // For creating new threads after interrupts are thrown
+    public Thread getThread(Clock clock){
+        clockThread = new Thread(clock);
+        return clockThread;
+    }
+
+    public Thread getThreadCPU1(CPU cpu){
+        cpu1Thread = new Thread(cpu);
+        return cpu1Thread;
+    }
+
+    public Thread getThreadCPU2(CPU cpu){
+        cpu2Thread = new Thread(cpu);
+        return cpu2Thread;
+    }
 
     //Method to start running the system
     public void start(){
@@ -38,10 +76,6 @@ public class PC {
        // if (!cpu2.getFinishedList().equals(finishedList)){cpu2.setFinishedList(finishedList);}
 
         //currentTime = currentTime + cpu1.runThis.serviceTime;
-        Thread thread1 = new Thread(cpu1);
-        Thread thread2 = new Thread(cpu2);
-        thread1.start();
-        thread2.start();
     }
 
     //Method to pause the system when it is running

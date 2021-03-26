@@ -3,7 +3,7 @@ package com.company;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-public class Process implements Runnable {
+public class Process  {
     private int arrivalTime;
     private String processID;
     private int serviceTime;
@@ -21,7 +21,7 @@ public class Process implements Runnable {
         this.priority = priority;
     }
 
-    public void run() {
+  /*  public void run() {
         try {
             //System.out.println(" Running process  " + this.getProcessID() + " for " + this.getServiceTime() + " seconds.");
             Thread.sleep(1);
@@ -31,7 +31,7 @@ public class Process implements Runnable {
         } catch (NullPointerException ex){
             System.out.println("no process");
         }
-    }
+    }*/
     public int getServiceTime(){
         return this.serviceTime;
     }

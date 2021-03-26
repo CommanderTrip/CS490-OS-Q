@@ -226,6 +226,10 @@ public class GUI extends DefaultTableModel {
         pauseSystem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                // If the pause button was clicked, interrupt the clock and cpus
+                model.throwClockInterrupt();
+                model.throwCPUInterrupt();
                 status.setText("System Paused");
             }
         });
@@ -302,7 +306,7 @@ public class GUI extends DefaultTableModel {
         try {
             for (int i = 0; i < model.cpu1.getFinishedList().size(); i++) {
                 reportsTableModel.addRow(new Object[]{String.valueOf(model.cpu1.getFinishedList().get(i).getProcessID()),
-                        model.cpu1.getFinishedList().get(i).getServiceTime(), model.cpu1.getFinishedList().get(i).getArrivalTime(),
+                        model.cpu1.getFinishedList().get(i).getArrivalTime(), model.cpu1.getFinishedList().get(i).getServiceTime(),
                         model.cpu1.getFinishedList().get(i).getFinishTime(),  model.cpu1.getFinishedList().get(i).getTat(),
                         model.cpu1.getFinishedList().get(i).getnTat()});
                 //System.out.println("asdf:" + i);

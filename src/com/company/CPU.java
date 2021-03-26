@@ -2,10 +2,7 @@ package com.company;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class CPU implements Runnable{
     private String name;
@@ -28,8 +25,12 @@ public class CPU implements Runnable{
         this.runThis = new Process(0, "empty", 0, 0 );
     }
     public void run(){
-        while(!processQueue.isEmpty()){
+        // Only run if the process queue is not empty
+        if(!processQueue.isEmpty()) {
+            // Grab the next process
             this.SelectProcess();
+
+            // Run that process
             this.RunProcess(runThis);
         }
     }
@@ -45,28 +46,25 @@ public class CPU implements Runnable{
         }
     }
     public void RunProcess(Process p){
-        Thread pt = new Thread(p);
-        pt.start();
         try {
+            // Set CPU status
             this.setStatus("Running");
             System.out.println(this.name +" running " + p.getProcessID() + " for " + p.getServiceTime());
 
-            Clock clock = Clock.getInstance();
-
             // Print arrival time
-            int arrivalTime = clock.getTime();
-            System.out.println(this.name + " " + p.getProcessID() + " arrival time: " +  arrivalTime);
+            p.setArrivalTime(Clock.getInstance().getTime());
+            System.out.println(this.name + " " + p.getProcessID() + " arrival time: " +  p.getArrivalTime());
 
             // Let the job complete
-            pt.join();
+            //processThread.join();
             Thread.sleep(((long) p.getServiceTime() * timeScale));
 
             // Print the Finish time
-            p.setFinishTime(clock.getTime());
+            p.setFinishTime(Clock.getInstance().getTime());
             System.out.println(this.name + " " + p.getProcessID() + " finish time: " +  p.getFinishTime());
 
             // Turnaround time
-            p.setTat(p.getFinishTime() - arrivalTime);
+            p.setTat(p.getFinishTime() + 1 - p.getArrivalTime());
             System.out.println(this.name + " " + p.getProcessID() + " TAT: " +  p.getTat() );
 
             // Normalized Turnaround time
@@ -74,14 +72,20 @@ public class CPU implements Runnable{
             System.out.println(this.name + " " + p.getProcessID() + " nTAT: " +  p.getnTat());
 
             // Current Throughput???
+
+
             finishedList.add(p);
             System.out.println("flist size:" + finishedList.size());
             this.setStatus("idle");
             this.setRunTime(0);
-
+            run();
         } catch (InterruptedException e) {
-            //Thread failed catch
-            System.out.println("Process interrupted");
+            // System was most likely paused
+            // Adjust the current process's service time
+            p.setServiceTime(p.getServiceTime() - (Clock.getInstance().getTime() - p.getArrivalTime()));
+            processQueue.add(0,p);
+            // State that the CPU was paused
+            System.out.println("~~~~~~~~~~CPU Process interrupted~~~~~~~~~~");
         }
     }
     public void addPropertyChangeListener(PropertyChangeListener pcl){c.addPropertyChangeListener(pcl);}

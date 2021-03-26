@@ -23,9 +23,14 @@ public class Controller {
                     model.start();
 
                     // Get the clock and set a thread for it.
-                    Clock clock = Clock.getInstance();
-                    Thread clockThread = new Thread(clock);
-                    clockThread.start();
+                    Thread clock = model.getThread(Clock.getInstance());
+                    clock.start();
+
+                    // Get the CPU threads and start them
+                    Thread cpu1Thread = model.getThreadCPU1(model.cpu1);
+                    Thread cpu2Thread = model.getThreadCPU2(model.cpu2);
+                    cpu1Thread.start();
+                    cpu2Thread.start();
 
                     //view.reports.append(model.cpu1.getRunThis().getProcessID()
                     //        + " ran for:  " + model.cpu1.getRunThis().getServiceTime() + " seconds." + "\n");
