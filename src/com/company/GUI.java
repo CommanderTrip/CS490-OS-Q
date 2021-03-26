@@ -50,11 +50,11 @@ public class GUI extends DefaultTableModel {
 
     //Table variables
     private JPanel tables;
-        //Process Queue Table variables
+    //Process Queue Table variables
     private DefaultTableModel queueTableModel;
     private JTable queueTable;
     private JScrollPane queueScrollPane;
-        //Reports Area Table variables
+    //Reports Area Table variables
     private DefaultTableModel reportsTableModel;
     private JTable reportsTable;
     private JScrollPane reportsScrollPane;
@@ -241,7 +241,7 @@ public class GUI extends DefaultTableModel {
         queueTableModel = new DefaultTableModel(0,2);
         queueTableModel.setColumnIdentifiers(queueColumnNames);
         queueTable = new JTable(queueTableModel);
-//        queueTable.setModel(queueTableModel);
+        //queueTable.setModel(queueTableModel);
         queueScrollPane = new JScrollPane(queueTable);
         tables.add(queueScrollPane);
             //Creating Reports Area Scrollable Table
@@ -249,7 +249,7 @@ public class GUI extends DefaultTableModel {
         reportsTableModel = new DefaultTableModel(0,6);
         reportsTableModel.setColumnIdentifiers(reportsColumnNames);
         reportsTable = new JTable(reportsTableModel);
-//        reportsTable.setModel(reportsTableModel);
+        //reportsTable.setModel(reportsTableModel);
         reportsScrollPane = new JScrollPane(reportsTable);
         tables.add(reportsScrollPane);
             //Adding the Tables Panel to the main frame
@@ -297,9 +297,8 @@ public class GUI extends DefaultTableModel {
 
         mainMenu.setVisible(true);
 
-        //TODO: Does this automatically close the program?
         //Create the file input window
-        // Error if the file could not be open
+        //Exits program if the file could not be open
         try{
             result = JOptionPane.showInputDialog(mainMenu, "Enter the file path: ");
         } catch (HeadlessException e) {
@@ -310,10 +309,6 @@ public class GUI extends DefaultTableModel {
             return;
         }
 //        reports.append("File Path entered: " + result + "\n");
-    }
-
-    //TODO: This function has nothing in it. Is this intended?
-    public void run() {
     }
 
     /**

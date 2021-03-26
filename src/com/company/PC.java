@@ -5,7 +5,6 @@ import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class PC {
@@ -15,7 +14,6 @@ public class PC {
     public ArrayList<Process> processQueue;
     public ArrayList<Process> finishedList;
     public CPU cpu1;
-    //public int timeScale;
     public CPU cpu2;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
     private Thread clockThread;
@@ -70,12 +68,9 @@ public class PC {
 
     //Method to start running the system
     public void start(){
+        //Sets the process queues for the cpus to avoid null ptr on start
         if (!cpu1.getProcessQueue().equals(processQueue)){cpu1.setProcessQueue(processQueue);}
         if (!cpu2.getProcessQueue().equals(processQueue)){cpu2.setProcessQueue(processQueue);}
-        //if (!cpu1.getFinishedList().equals(finishedList)){cpu1.setFinishedList(finishedList);}
-       // if (!cpu2.getFinishedList().equals(finishedList)){cpu2.setFinishedList(finishedList);}
-
-        //currentTime = currentTime + cpu1.runThis.serviceTime;
     }
 
     //Method to pause the system when it is running
@@ -129,6 +124,5 @@ public class PC {
     public ArrayList<Process> getProcessQueue(){return this.processQueue;}
     public void setFinishedList(ArrayList<Process> fl){this.finishedList = fl;}
     public ArrayList<Process> getFinishedList(){return this.finishedList;}
-    //public void setTimeScale(int i){this.timeScale = i;}
-    //public int getTimeScale(){return this.timeScale;}
+
 }

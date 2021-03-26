@@ -32,10 +32,7 @@ public class Controller {
                     cpu1Thread.start();
                     cpu2Thread.start();
 
-                    //view.reports.append(model.cpu1.getRunThis().getProcessID()
-                    //        + " ran for:  " + model.cpu1.getRunThis().getServiceTime() + " seconds." + "\n");
                 }
-
             }
         });
     }
@@ -46,15 +43,7 @@ public class Controller {
     public ArrayList<Process> getQueue() {return model.processQueue;}
 
     //Updates the GUI view of the table of processes
-    public void updateTableView() {view.updateQueueTableView();}
-
-    //Method to populate the table of processes in the GUI
-    /*public void populateTable() {
-        DefaultTableModel table = view.getTableModel();
-        for (int i = 0; i < model.processQueue.size(); i++) {
-            table.addRow(new Object[]{String.valueOf(model.processQueue.get(i).getProcessID()), model.processQueue.get(i).getServiceTime()});
-        }
-    }*/
+    //public void updateTableView() {view.updateQueueTableView();}
 
     public PC getModel(){
         return this.model;
