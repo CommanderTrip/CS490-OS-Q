@@ -68,6 +68,8 @@ public class GUI extends DefaultTableModel {
     //PC model variable
     PC model;
 
+    private double throughput;
+
     /**
      * This creates the main window and all of the components within that window.
      */
@@ -257,9 +259,35 @@ public class GUI extends DefaultTableModel {
         main.add(tables, c);
 
         //Creating the Current Throughput Field
-        double throughput = 10.01;  //dummy variable for now. DELETE WHEN THE THROUGHPUT IS IMPLEMENTED!
         currentThroughput = new JLabel();
-        currentThroughput.setText("Current Throughput: " + throughput + " process/unit of time");
+
+        // Initialize the throughput display
+        throughput = model.cpu1.getThroughput();
+        if ( Double.isNaN(throughput)){
+            throughput = 0.0;
+        }
+        throughput = model.cpu1.getThroughput();currentThroughput.setText("Current Throughput: " + throughput + " process/unit of time");
+
+        //Create a listener on CPU1 because it updates throughput on process finish
+        model.cpu1.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                throughput = model.cpu1.getThroughput();
+                throughput = model.cpu1.getThroughput();currentThroughput.setText("Current Throughput: " + throughput + " process/unit of time");
+
+            }
+        });
+
+        //Create a listener on CPU2 because it updates throughput on process finish
+        model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                throughput = model.cpu2.getThroughput();
+                throughput = model.cpu2.getThroughput();currentThroughput.setText("Current Throughput: " + throughput + " process/unit of time");
+            }
+        });
+
+        // Show it
         currentThroughput.setFont(currentThroughput.getFont().deriveFont(20.0f));
             //Adding the Current Throughput Label to main frame
         c.gridx = 0;

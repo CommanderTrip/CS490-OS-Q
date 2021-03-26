@@ -13,6 +13,7 @@ public class CPU implements Runnable{
     private ArrayList<Process> finishedList;
     private int timeScale = 100;
     private int runTime;
+    private double throughput;
 
     public CPU(){
     }
@@ -71,7 +72,12 @@ public class CPU implements Runnable{
             p.setnTat(p.getTat() / p.getServiceTime());
             System.out.println(this.name + " " + p.getProcessID() + " nTAT: " +  p.getnTat());
 
-            // Current Throughput???
+            // Current Throughput
+            throughput = finishedList.size() / (float) Clock.getInstance().getTime();
+            if ( Double.isNaN(throughput)){
+                throughput = 0.0;
+            }
+            System.out.println("Throughput: "+ throughput);
 
 
             finishedList.add(p);
@@ -114,6 +120,7 @@ public class CPU implements Runnable{
     public String getName(){return this.name;}
     public void setName(String s){this.name = s;}
     public int getRunTime(){return this.runTime;}
+    public double getThroughput(){return this.throughput;}
     public void setRunTime(int newRunTime) {
         int oldRunTime = this.runTime;
         this.runTime = newRunTime;
