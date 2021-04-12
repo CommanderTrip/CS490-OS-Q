@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class PC {
     private int status;
@@ -73,16 +74,6 @@ public class PC {
         if (!cpu2.getProcessQueue().equals(processQueue)){cpu2.setProcessQueue(processQueue);}
     }
 
-    //Method to pause the system when it is running
-    public void pause(){
-
-    }
-
-    //Method to stop the system when it is running
-    public void stop(){
-
-    }
-
     //Method to populate linked list of processes from CSV file
     public void ReadFromFile(String path) {
         ArrayList<Process> q = new ArrayList<>();
@@ -106,12 +97,15 @@ public class PC {
                 String[] string = fromFile.split(", ");
                 Process proc = new Process(Integer.parseInt(string[0]), string[1], Integer.parseInt(string[2]), Integer.parseInt(string[3]));
                 q.add(proc);
-                this.setProcessQueue(q);
             }
             catch(NullPointerException e){System.out.println("NullPTR during splitting");}
             //temp processes while reading file to be added to queue
             //System.out.println("Inside loop print: " + proc.getArrivalTime() + ", " + proc.getProcessID() + ", " + proc.getServiceTime() + ", " + proc.getPriority());
         }
+
+        //Sorts the queue by arrival time
+        q.sort(Comparator.comparing(p->p.getArrivalTime()));
+        this.setProcessQueue(q);
         System.out.println(this.processQueue.size() + " processes added to the queue.");
     }
     public void addPropertyChangeListener(PropertyChangeListener pcl){

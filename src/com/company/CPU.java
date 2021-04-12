@@ -68,7 +68,7 @@ public class CPU implements Runnable{
             //System.out.println(this.name + " " + p.getProcessID() + " finish time: " +  p.getFinishTime());
 
             // Turnaround time
-            p.setTat(p.getFinishTime() + 1 - p.getArrivalTime());
+            p.setTat(p.getFinishTime() - p.getArrivalTime());
             //System.out.println(this.name + " " + p.getProcessID() + " TAT: " +  p.getTat() );
 
             // Normalized Turnaround time
