@@ -16,6 +16,7 @@ public class CPU_RR implements Runnable {
     private double throughput;
     private int timeQuantum;
     private int time = 0;
+    //private ArrayList<Process> readyQueue;
 
     public CPU_RR() {
     }
@@ -27,6 +28,7 @@ public class CPU_RR implements Runnable {
         this.status = "idle";
         this.runThis = new Process(0, "empty", 0, 0);
         this.timeQuantum = 2;
+        //this.readyQueue = new ArrayList<Process>();
     }
 
     public void run() {
@@ -51,6 +53,7 @@ public class CPU_RR implements Runnable {
                 this.setProcess(this.processQueue.remove(0));
                 this.setStatus("Ready");
                 this.runTime = runThis.getRunTimeRemaining();
+
                 //update cpu panel on gui
             }
             if (processQueue.isEmpty()) {
@@ -61,9 +64,10 @@ public class CPU_RR implements Runnable {
 
     public void RunProcess(Process p) {
         try {
-            if(p.getRunTimeRemaining() < timeQuantum){
-                //Thread.sleep((long) timeScale * p.getRunTimeRemaining());
-                Thread.sleep(1);
+            //p.setStartTime(Clock.getInstance().getTime());
+            if(p.getRunTimeRemaining() < timeQuantum && p.getRunTimeRemaining() > 0){
+                Thread.sleep((long) timeScale * p.getRunTimeRemaining());
+                //Thread.sleep(1);
                 time += p.getRunTimeRemaining();
             }
             else{
@@ -110,10 +114,10 @@ public class CPU_RR implements Runnable {
             }
             run();
         } catch (InterruptedException e) {
-            synchronized (processQueue) {
+            synchronized (this.processQueue) {
                 // System was most likely paused
                 // Adjust the current process's service time
-                //p.setRunTimeRemaining(p.getRunTimeRemaining() - (Clock.getInstance().getTime() - p.getArrivalTime()));
+                //p.setRunTimeRemaining(p.getRunTimeRemaining() - (Clock.getInstance().getTime() - p.getStartTime()));
                 processQueue.add(p);
                 System.out.println(p.getProcessID() + " added back to queue");
                 // State that the CPU was paused

@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 
 public class PC {
     private int status;
@@ -23,6 +22,7 @@ public class PC {
     private Thread clockThread;
     private Thread cpu1Thread;
     private Thread cpu2Thread;
+    private Clock clock;
 
     //Constructor
     public PC() {
@@ -36,9 +36,10 @@ public class PC {
         cpu2 = new CPU_RR("CPU RR", processQueue2, finishedList2);
 
         // Initialize a clock thread
-        Clock clock = Clock.getInstance();
+        clock = Clock.getInstance();
         clockThread = getThread(clock);
         clockThread = new Thread(clock);
+
 
         // Initialized CPU Threads
         cpu1Thread = new Thread(cpu1);
@@ -48,7 +49,11 @@ public class PC {
     }
 
     // Throw interrupts to the clock
-    public void throwClockInterrupt(){clockThread.interrupt();}
+    public void throwClockInterrupt()
+    {
+        clock.getTimer().cancel();
+        //clockThread.interrupt();
+    }
 
     // Throw interrupts to the CPU
     public void throwCPUInterrupt() {
