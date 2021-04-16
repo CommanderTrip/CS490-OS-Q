@@ -14,7 +14,7 @@ public class PC {
     public int currentTime;
     public ArrayList<Process> processQueue;
     public ArrayList<Process> finishedList;
-    public CPU cpu1;
+    public CPU_HRRN cpu1;
     public CPU cpu2;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
     private Thread clockThread;
@@ -27,7 +27,7 @@ public class PC {
         currentTime = 0;
         ArrayList<Process> processQueue = new ArrayList<>();
         ArrayList<Process> finishedList = new ArrayList<>();
-        cpu1 = new CPU("cpu1", processQueue, finishedList);
+        cpu1 = new CPU_HRRN("CPU HRRN", processQueue, finishedList);
         cpu2 = new CPU("cpu2", processQueue, finishedList);
 
         // Initialize a clock thread
@@ -57,7 +57,7 @@ public class PC {
         return clockThread;
     }
 
-    public Thread getThreadCPU1(CPU cpu){
+    public Thread getThreadCPU1(CPU_HRRN cpu){
         cpu1Thread = new Thread(cpu);
         return cpu1Thread;
     }
