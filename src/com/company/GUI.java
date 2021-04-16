@@ -144,7 +144,7 @@ public class GUI extends DefaultTableModel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 model.cpu1.setTimeScale(Integer.parseInt(timeUnitField.getText()));
-                model.cpu2.setTimeScale(Integer.parseInt(timeUnitField.getText()));
+                //model.cpu2.setTimeScale(Integer.parseInt(timeUnitField.getText()));
                 Clock clock = Clock.getInstance();
                 clock.setTimeStep(Integer.parseInt(timeUnitField.getText()));
             }
@@ -212,7 +212,7 @@ public class GUI extends DefaultTableModel {
         exec2.setText(execStatus2);
         cpuPanel2.add(exec2);
             //Creating Time Remaining Label
-        tRemaining2 = model.cpu2.getRunThis().getServiceTime();
+        //tRemaining2 = model.cpu2.getRunThis().getServiceTime();
         timeRemaining2 = new JLabel();
         timeRemaining2.setText(" Time remaining: " + tRemaining2);
         cpuPanel2.add(timeRemaining2);
