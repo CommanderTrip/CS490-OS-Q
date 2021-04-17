@@ -2,6 +2,7 @@ package com.company;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 
 /**
@@ -14,6 +15,7 @@ public class CPU_HRRN implements Runnable {
     private String status;                  // CPU Status; idle, running, paused
     private int timeStep = 100;             // Time step of the system in MS
     private double throughput = 0.0;        // Current cpu throughput
+    private int localStart;
 
     private Process currentRunning;         // Stores the current, running processes
     private int runTime;                    // The process's run time
@@ -53,6 +55,7 @@ public class CPU_HRRN implements Runnable {
 
             if (nextProcess == null) {
                 System.out.println(cpuName + "'s wait queue was empty.");
+                run();
             } else {
                 // Fetch the process out of the process q so only this cpu can touch it
                 synchronized (processQ) {
@@ -104,6 +107,7 @@ public class CPU_HRRN implements Runnable {
         }
 
         // Remove the chosen process from the wait queue and return it
+        assert next != null;
         waitQ.remove(next);
         return next;
     }
@@ -117,6 +121,9 @@ public class CPU_HRRN implements Runnable {
             // Set CPU satus
             setStatus("Running");
             System.out.println(cpuName + " running " + runningProcess.getProcessID() + " for " + runningProcess.getServiceTime());
+
+            // Capture the local start time
+            localStart = Clock.getInstance().getTime();
 
             // Run the job
             Thread.sleep((long) runningProcess.getServiceTime() * timeStep);
@@ -148,7 +155,7 @@ public class CPU_HRRN implements Runnable {
             synchronized (processQ) {
                 // System was most likely paused
                 // Adjust the current process's service time
-                runningProcess.setServiceTime(runningProcess.getServiceTime() - (Clock.getInstance().getTime()) - runningProcess.getArrivalTime());
+                runningProcess.setServiceTime(runningProcess.getServiceTime() - (Clock.getInstance().getTime()- localStart) );
 
                 // Add the process back to the process list
                 processQ.add(0, runningProcess);
@@ -166,9 +173,17 @@ public class CPU_HRRN implements Runnable {
     private void addToWaitQ() {
         synchronized (processQ) {
             for (Process p : processQ) {
-                // Check if the current time is passed the process's arrival time
-                if (p.getArrivalTime() > Clock.getInstance().getTime()) {
-                    waitQ.add(p);
+                boolean inWaitQ = false;
+               // Check if the process is already in the wait queue
+                for (Process process : waitQ) {
+                    if (process.getProcessID().equals(p.getProcessID())) {
+                        inWaitQ = true;
+                        break;
+                    }
+                }
+                // Add it to the wait queue if it is not already there
+                if (!inWaitQ) {
+                    if (p.getArrivalTime() < Clock.getInstance().getTime()) waitQ.add(p);
                 }
             }
         }
