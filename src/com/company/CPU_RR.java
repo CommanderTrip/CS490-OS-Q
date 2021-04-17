@@ -11,7 +11,7 @@ public class CPU_RR implements Runnable {
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
     private ArrayList<Process> processQueue;
     private ArrayList<Process> finishedList;
-    private int timeScale = 100;
+    private int timeScale = 2;
     private int runTime;
     private double throughput;
     private int timeQuantum;

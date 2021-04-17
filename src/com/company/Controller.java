@@ -13,7 +13,8 @@ public class Controller {
         this.model = model;
         this.view = view;
         this.createQueue();
-        view.loadQueueTableData();
+        view.loadHrrnQueueTableData();
+        view.loadRrQueueTableData();
         view.startSystem.addActionListener(new ActionListener() {
             //Action listener for the start button on the GUI.
             @Override

@@ -18,20 +18,21 @@ public class GUI extends DefaultTableModel {
     private Container main;
     private GridBagConstraints c;
 
-    //Status Label variable
+    //Status Panel variables
+    private JPanel statusPanel;
     private JLabel status;
-
-    //Button Panel variables
-    private JPanel buttonPanel;
     public JButton startSystem;
     private JButton pauseSystem;
-
-    //Time Unit variables
     private JPanel time;
     private JLabel timeunit;
     private JLabel timeunit2;
     private JTextField timeUnitField;
 
+    //Queue and Reports column names for both RR and HRRN
+    private String[] queueColumnNames = {"Process Name", "Service Time"};
+    private String[] reportsColumnNames = {"Process Name", "Arrival Time", "Service Time", "Finish Time", "TAT", "nTAT"};
+
+    //HRRN Panel variables
     //CPU1 variables
     private JPanel cpuPanel1;
     private JLabel cpu1;
@@ -39,7 +40,21 @@ public class GUI extends DefaultTableModel {
     private JLabel timeRemaining1;
     String execStatus1;
     int tRemaining1;
+    //Table variables
+    private JPanel hrrnTables;
+    //Process Queue Table variables
+    private DefaultTableModel hrrnQueueTableModel;
+    private JTable hrrnQueueTable;
+    private JScrollPane hrrnQueueScrollPane;
+    //Reports Area Table variables
+    private DefaultTableModel hrrnReportsTableModel;
+    private JTable hrrnReportsTable;
+    private JScrollPane hrrnReportsScrollPane;
+    //Throughput variables
+    private JLabel hrrnCurrentThroughput;
+    private double hrrnThroughput;
 
+    //RR Panel variables
     //CPU2 variables
     private JPanel cpuPanel2;
     private JLabel cpu2;
@@ -47,20 +62,22 @@ public class GUI extends DefaultTableModel {
     private JLabel timeRemaining2;
     String execStatus2;
     int tRemaining2;
-
+    private JPanel timeSlice;
+    private JLabel timeSliceLength;
+    private JTextField timeSliceField;
     //Table variables
-    private JPanel tables;
+    private JPanel rrTables;
     //Process Queue Table variables
-    private DefaultTableModel queueTableModel;
-    private JTable queueTable;
-    private JScrollPane queueScrollPane;
+    private DefaultTableModel rrQueueTableModel;
+    private JTable rrQueueTable;
+    private JScrollPane rrQueueScrollPane;
     //Reports Area Table variables
-    private DefaultTableModel reportsTableModel;
-    private JTable reportsTable;
-    private JScrollPane reportsScrollPane;
-
-    //Time Unit variables
-    private JLabel currentThroughput;
+    private DefaultTableModel rrReportsTableModel;
+    private JTable rrReportsTable;
+    private JScrollPane rrReportsScrollPane;
+    //Throughput variables
+    private JLabel rrCurrentThroughput;
+    private double rrThroughput;
 
     //Filepath Input variables
     String result;
@@ -68,7 +85,6 @@ public class GUI extends DefaultTableModel {
     //PC model variable
     PC model;
 
-    private double throughput;
 
     /**
      * This creates the main window and all of the components within that window.
@@ -78,30 +94,21 @@ public class GUI extends DefaultTableModel {
 
         //Creating the main window and setting its properties
         mainMenu = new JFrame("CPU Processor");
-        mainMenu.setSize(1000, 750);
+        mainMenu.setSize(1250, 750);
         mainMenu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainMenu.getContentPane().setBackground(new Color(230, 245, 255));
         main = mainMenu.getContentPane();
         main.setLayout(new GridBagLayout());
         c = new GridBagConstraints();
-        c.insets = new Insets(20, 0, 0, 0);    //Padding between edge of window and top row
-
-        //Creating the Status Label
-        status = new JLabel();
-        status.setText("System Starting...");
-            //Adding the Status Label to main frame
-        c.gridx = 2;
-        c.gridy = 0;
-        c.weightx = 10;
-        main.add(status, c);
+        c.insets = new Insets(15, 0, 0, 0);    //Padding between edge of window and top row
 
         //Creating the Button Panel and setting its properties
-        buttonPanel = new JPanel(new GridLayout(1, 3, 45, 0));
-        buttonPanel.setBackground(new Color(230, 245, 255));
+        statusPanel = new JPanel(new GridLayout(1, 4, 45, 0));
+        statusPanel.setBackground(new Color(230, 245, 255));
         //Creating the individual buttons and adding them to the Button Panel
             //Creating the Start System Button and adding the action listener
         startSystem = new JButton("Start System");  //Start Button
-        buttonPanel.add(startSystem);
+        statusPanel.add(startSystem);
             //Creating the action listener for the Start System button
             //Starts and runs the system when the button is pressed
         startSystem.addActionListener(new ActionListener() {
@@ -112,7 +119,7 @@ public class GUI extends DefaultTableModel {
         });
             //Creating the Pause System Button and adding the action listener
         pauseSystem = new JButton("Pause System");  //Pause Button
-        buttonPanel.add(pauseSystem);
+        statusPanel.add(pauseSystem);
             //Creating the action listener for the Pause System button
             //Pauses the whole system when the button is pressed
         pauseSystem.addActionListener(new ActionListener() {
@@ -125,12 +132,10 @@ public class GUI extends DefaultTableModel {
                 status.setText("System Paused");
             }
         });
-
-        //Adding the Button Panel to the main frame
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 2;
-        main.add(buttonPanel, c);
+        //Creating the Status Label
+        status = new JLabel();
+        status.setText("System Starting...");
+        statusPanel.add(status);
 
         //Creating the Time Unit Entry field and the action listener for the text entry
         //NOTE: You MUST press Enter after typing the Time Unit for it to be updated in the system
@@ -139,11 +144,12 @@ public class GUI extends DefaultTableModel {
         timeunit = new JLabel();
         timeunit.setText("1 time unit = ");
         timeUnitField = new JTextField(Integer.toString(model.cpu1.getTimeScale()),10);
-            //Action listener for the data entered for Time Unit
+        //Action listener for the data entered for Time Unit
         timeUnitField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 model.cpu1.setTimeScale(Integer.parseInt(timeUnitField.getText()));
+                //TODO: IS THE BELOW LINE SUPPOSED TO BE COMMENTED?
                 //model.cpu2.setTimeScale(Integer.parseInt(timeUnitField.getText()));
                 Clock clock = Clock.getInstance();
                 clock.setTimeStep(Integer.parseInt(timeUnitField.getText()));
@@ -154,146 +160,225 @@ public class GUI extends DefaultTableModel {
         time.add(timeunit);
         time.add(timeUnitField);
         time.add(timeunit2);
-            //Adding the Time Panel to the main frame
-        c.gridx = 2;
-        c.gridy = 1;
-        c.weightx = 10;
-        c.weighty = 10;
-        main.add(time, c);
+        statusPanel.add(time);
 
-        //Creating the CPU Panels and setting their properties
-            //Creating CPU1 Panel and text fields using the cpu1 information
+        //Adding the Button Panel to the main frame
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 4;
+        c.gridheight = 1;
+        c.weightx = 1;
+        main.add(statusPanel, c);
+
+        //Creating CPU HRRN Panel
+        //Creating CPU HRRN Panel and text fields using the cpu1 information
         cpuPanel1 = new JPanel(new GridLayout(3, 1));
         cpuPanel1.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         cpuPanel1.setPreferredSize(new Dimension(200, 100));
         cpuPanel1.setBackground(new Color(255, 204, 204));
-            //Creating CPU1 Label
+        //Creating CPU1 Label
         cpu1 = new JLabel();  //CPU label
         cpu1.setText(model.cpu1.getName());
         cpuPanel1.add(cpu1);
-            //Creating Execution Label
+        //Creating Execution Label
         exec1 = new JLabel(); //Current process executing
         execStatus1 = model.cpu1.getStatus();
         exec1.setText(execStatus1);
         cpuPanel1.add(exec1);
-            //Creating Time Remaining Label
+        //Creating Time Remaining Label
         tRemaining1 = model.cpu1.getRunThis().getServiceTime();
         timeRemaining1 = new JLabel();    //Time remaining for current process
         timeRemaining1.setText(" Time remaining: " + tRemaining1);
         cpuPanel1.add(timeRemaining1);
-            //Adding CPU1 to the main frame
-        c.gridx = 2;
-        c.gridy = 2;
-        c.weightx = 10;
-        c.weighty = 5;
-        main.add(cpuPanel1, c);
-            //Creating the action listener for the CPU1 Panel to update the CPU1
+        //Creating the action listener for the CPU1 Panel to update the CPU1
         model.cpu1.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                updateQueueTableView();
-                updateFinishedList();
+                updateHrrnQueueTableView();
+                updateHrrnFinishedList();
                 exec1.setText("exec: " +model.cpu1.getRunThis().getProcessID());
                 timeRemaining1.setText(" Time remaining: " + model.cpu1.getRunTime());
             }
         });
+        c.gridx = 1;
+        c.gridy = 1;
+        c.weightx = 0.5;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        main.add(cpuPanel1, c);
 
-            //Creating CPU2 Panel and text fields using the cpu2 information
-        cpuPanel2 = new JPanel(new GridLayout(3, 1));
-        cpuPanel2.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        cpuPanel2.setPreferredSize(new Dimension(200, 100));
-        cpuPanel2.setBackground(new Color(255, 204, 204));
-            //Creating CPU2 Label
-        cpu2 = new JLabel();  //CPU label
-        cpu2.setText(model.cpu2.getName());
-        cpuPanel2.add(cpu2);
-            //Creating Execution Label
-        exec2 = new JLabel(); //Current process executing
-        execStatus2 = model.cpu2.getStatus();
-        exec2.setText(execStatus2);
-        cpuPanel2.add(exec2);
-            //Creating Time Remaining Label
-        //tRemaining2 = model.cpu2.getRunThis().getServiceTime();
-        timeRemaining2 = new JLabel();
-        timeRemaining2.setText(" Time remaining: " + tRemaining2);
-        cpuPanel2.add(timeRemaining2);
-            //Adding CPU2 to the main frame
-        c.gridx = 2;
-        c.gridy = 3;
-        c.weightx = 10;
-        c.weighty = 5;
-        main.add(cpuPanel2, c);
-            //Creating the action listener for the CPU2 Panel to update the CPU2
-        model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                updateQueueTableView();
-                updateFinishedList();
-                exec2.setText("exec: " +model.cpu2.getRunThis().getProcessID());
-                timeRemaining2.setText(" Time remaining: " + model.cpu2.getRunTime());
-            }
-        });
 
         //Creating the Tables Panel and setting its properties
-        tables = new JPanel(new GridLayout(2,1,0,15));
-        tables.setPreferredSize(new Dimension(500,550));
-        tables.setBackground(new Color(230, 245, 255));
-            //Creating Process Queue Scrollable Table
-        String[] queueColumnNames = {"Process Name", "Service Time"};
-        queueTableModel = new DefaultTableModel(0,2);
-        queueTableModel.setColumnIdentifiers(queueColumnNames);
-        queueTable = new JTable(queueTableModel);
+        hrrnTables = new JPanel(new GridLayout(2,1,0,15));
+        hrrnTables.setPreferredSize(new Dimension(500,450));
+        hrrnTables.setBackground(new Color(230, 245, 255));
+        //Creating Process Queue Scrollable Table
+        hrrnQueueTableModel = new DefaultTableModel(0,2);
+        hrrnQueueTableModel.setColumnIdentifiers(queueColumnNames);
+        hrrnQueueTable = new JTable(hrrnQueueTableModel);
         //queueTable.setModel(queueTableModel);
-        queueScrollPane = new JScrollPane(queueTable);
-        tables.add(queueScrollPane);
-            //Creating Reports Area Scrollable Table
-        String[] reportsColumnNames = {"Process Name", "Arrival Time", "Service Time", "Finish Time", "TAT", "nTAT"};
-        reportsTableModel = new DefaultTableModel(0,6);
-        reportsTableModel.setColumnIdentifiers(reportsColumnNames);
-        reportsTable = new JTable(reportsTableModel);
+        hrrnQueueScrollPane = new JScrollPane(hrrnQueueTable);
+        hrrnTables.add(hrrnQueueScrollPane);
+        //Creating Reports Area Scrollable Table
+        hrrnReportsTableModel = new DefaultTableModel(0,6);
+        hrrnReportsTableModel.setColumnIdentifiers(reportsColumnNames);
+        hrrnReportsTable = new JTable(hrrnReportsTableModel);
         //reportsTable.setModel(reportsTableModel);
-        reportsScrollPane = new JScrollPane(reportsTable);
-        tables.add(reportsScrollPane);
-            //Adding the Tables Panel to the main frame
+        hrrnReportsScrollPane = new JScrollPane(hrrnReportsTable);
+        hrrnTables.add(hrrnReportsScrollPane);
         c.gridx = 0;
-        c.gridy = 1;
+        c.gridy = 2;
+        c.weightx = 0.5;
         c.gridheight = 3;
-        main.add(tables, c);
+        c.gridwidth = 2;
+        main.add(hrrnTables, c);
 
         //Creating the Current Throughput Field
-        currentThroughput = new JLabel();
-
+        hrrnCurrentThroughput = new JLabel();
         // Initialize the throughput display
-        throughput = model.cpu1.getThroughput();
-        if ( Double.isNaN(throughput)){
-            throughput = 0.0;
+        hrrnThroughput = model.cpu1.getThroughput();
+        if ( Double.isNaN(hrrnThroughput)){
+            hrrnThroughput = 0.0;
         }
-        throughput = model.cpu1.getThroughput();currentThroughput.setText("Current Throughput: " + throughput + " process/unit of time");
-
+        hrrnThroughput = model.cpu1.getThroughput();
+        hrrnCurrentThroughput.setText("Current Throughput: " + hrrnThroughput + " process/unit of time");
         //Create a listener on CPU1 because it updates throughput on process finish
         model.cpu1.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                throughput = model.cpu1.getThroughput();
-                throughput = model.cpu1.getThroughput();currentThroughput.setText("Current Throughput: " + throughput + " process/unit of time");
+                hrrnThroughput = model.cpu1.getThroughput();
+                hrrnThroughput = model.cpu1.getThroughput();
+                hrrnCurrentThroughput.setText("Current Throughput: " + hrrnThroughput + " process/unit of time");
 
             }
         });
+        // Show it
+        hrrnCurrentThroughput.setFont(hrrnCurrentThroughput.getFont().deriveFont(16.0f));
+        //Adding the Current Throughput Label to main frame
+        c.gridx = 0;
+        c.gridy = 5;
+        c.gridheight = 1;
+        c.weightx = 0.5;
+        main.add(hrrnCurrentThroughput, c);
 
+
+
+
+        //Creating CPU RR Panel
+        //Creating CPU2 Panel and text fields using the cpu2 information
+        cpuPanel2 = new JPanel(new GridLayout(3, 1));
+        cpuPanel2.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        cpuPanel2.setPreferredSize(new Dimension(200, 100));
+        cpuPanel2.setBackground(new Color(255, 204, 204));
+        //Creating CPU2 Label
+        cpu2 = new JLabel();  //CPU label
+        cpu2.setText(model.cpu2.getName());
+        cpuPanel2.add(cpu2);
+        //Creating Execution Label
+        exec2 = new JLabel(); //Current process executing
+        execStatus2 = model.cpu2.getStatus();
+        exec2.setText(execStatus2);
+        cpuPanel2.add(exec2);
+        //Creating Time Remaining Label
+        //tRemaining2 = model.cpu2.getRunThis().getServiceTime();
+        timeRemaining2 = new JLabel();
+        timeRemaining2.setText(" Time remaining: " + tRemaining2);
+        cpuPanel2.add(timeRemaining2);
+        //Creating the action listener for the CPU2 Panel to update the CPU2
+        model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                updateRrQueueTableView();
+                updateRrFinishedList();
+                exec2.setText("exec: " +model.cpu2.getRunThis().getProcessID());
+                timeRemaining2.setText(" Time remaining: " + model.cpu2.getRunTime());
+            }
+        });
+        c.gridx = 2;
+        c.gridy = 1;
+        c.weightx = 0.5;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        main.add(cpuPanel2, c);
+
+        //Creating the Time Unit Entry field and the action listener for the text entry
+        //NOTE: You MUST press Enter after typing the Time Unit for it to be updated in the system
+        timeSlice = new JPanel(new FlowLayout());
+        timeSlice.setBackground(new Color(230, 245, 255));
+        timeSliceLength = new JLabel();
+        timeSliceLength.setText("Round Robin Time Slice Length");
+        timeSliceField = new JTextField(Integer.toString(model.cpu2.getTimeScale()),10);
+        timeSliceField.setColumns(4);
+        //Action listener for the data entered for Time Slice Length
+        timeSliceField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.cpu2.setTimeScale(Integer.parseInt(timeSliceField.getText()));
+                //System.out.println(model.cpu2.getTimeScale());
+            }
+        });
+        timeSlice.add(timeSliceLength);
+        timeSlice.add(timeSliceField);
+        c.gridx = 3;
+        c.gridy = 1;
+        c.weightx = 0.1;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.insets = new Insets(0,0,0,50);
+        main.add(timeSlice, c);
+
+
+        //Creating the Tables Panel and setting its properties
+        rrTables = new JPanel(new GridLayout(2,1,0,15));
+        rrTables.setPreferredSize(new Dimension(500,450));
+        rrTables.setBackground(new Color(230, 245, 255));
+        //Creating Process Queue Scrollable Table
+        rrQueueTableModel = new DefaultTableModel(0,2);
+        rrQueueTableModel.setColumnIdentifiers(queueColumnNames); //Uses same column names as hrrn
+        rrQueueTable = new JTable(rrQueueTableModel);
+        //queueTable.setModel(queueTableModel);
+        rrQueueScrollPane = new JScrollPane(rrQueueTable);
+        rrTables.add(rrQueueScrollPane);
+        //Creating Reports Area Scrollable Table
+        rrReportsTableModel = new DefaultTableModel(0,6);
+        rrReportsTableModel.setColumnIdentifiers(reportsColumnNames); //Uses same column names as hrrn
+        rrReportsTable = new JTable(rrReportsTableModel);
+        //reportsTable.setModel(reportsTableModel);
+        rrReportsScrollPane = new JScrollPane(rrReportsTable);
+        rrTables.add(rrReportsScrollPane);
+        //Creating the Current Throughput Field
+        rrCurrentThroughput = new JLabel();
+        c.gridx = 2;
+        c.gridy = 2;
+        c.weightx = 0.5;
+        c.gridheight = 3;
+        c.gridwidth = 2;
+        c.insets = new Insets(0,0,0,0);
+        main.add(rrTables, c);
+
+        // Initialize the throughput display
+        rrThroughput = model.cpu2.getThroughput();
+        if ( Double.isNaN(rrThroughput)){
+            rrThroughput = 0.0;
+        }
+        rrThroughput = model.cpu2.getThroughput();
+        rrCurrentThroughput.setText("Current Throughput: " + rrThroughput + " process/unit of time");
         //Create a listener on CPU2 because it updates throughput on process finish
         model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                throughput = model.cpu2.getThroughput();
-                throughput = model.cpu2.getThroughput();currentThroughput.setText("Current Throughput: " + throughput + " process/unit of time");
+                rrThroughput = model.cpu2.getThroughput();
+                rrThroughput = model.cpu2.getThroughput();
+                rrCurrentThroughput.setText("Current Throughput: " + rrThroughput + " process/unit of time");
             }
         });
 
         // Show it
-        currentThroughput.setFont(currentThroughput.getFont().deriveFont(20.0f));
-            //Adding the Current Throughput Label to main frame
-        c.gridx = 0;
+        rrCurrentThroughput.setFont(rrCurrentThroughput.getFont().deriveFont(16.0f));
+        //Adding the Current Throughput Label to main frame
+        c.gridx = 2;
         c.gridy = 5;
         c.gridheight = 1;
-        main.add(currentThroughput, c);
+        c.weightx = 0.5;
+        main.add(rrCurrentThroughput, c);
 
         mainMenu.setVisible(true);
 
@@ -321,13 +406,27 @@ public class GUI extends DefaultTableModel {
     /**
      * This function calls the loadQueueTableData function to update the displayed Process Queue Table.
      */
-    public void updateQueueTableView() {
+    public void updateHrrnQueueTableView() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
 
-                queueTableModel.setRowCount(0);
-                loadQueueTableData();
+                hrrnQueueTableModel.setRowCount(0);
+                loadHrrnQueueTableData();
+
+            }
+        });
+    }
+    /**
+     * This function calls the loadQueueTableData function to update the displayed Process Queue Table.
+     */
+    public void updateRrQueueTableView() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+
+                rrQueueTableModel.setRowCount(0);
+                loadRrFinishedList();
 
             }
         });
@@ -336,13 +435,26 @@ public class GUI extends DefaultTableModel {
     /**
      * This function updates the Reports Area Table as the Finished List of processes changes.
      */
-    public void updateFinishedList() {
+    public void updateHrrnFinishedList() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
 
-                reportsTableModel.setRowCount(0);
-                loadFinishedList();
+                hrrnReportsTableModel.setRowCount(0);
+                loadHrrnFinishedList();
+            }
+        });
+    }
+    /**
+     * This function updates the Reports Area Table as the Finished List of processes changes.
+     */
+    public void updateRrFinishedList() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+
+                rrReportsTableModel.setRowCount(0);
+                loadRrFinishedList();
             }
         });
     }
@@ -350,8 +462,8 @@ public class GUI extends DefaultTableModel {
     /**
      * This function returns the Table Model for the Process Queue.
      */
-    public DefaultTableModel getQueueTableModel() {
-        return queueTableModel;
+    public DefaultTableModel getHrrnQueueTableModel() {
+        return hrrnQueueTableModel;
     }
 
     /**
@@ -392,35 +504,68 @@ public class GUI extends DefaultTableModel {
     /**
      * This function updates the Process Queue Table as the Process Queue changes.
      */
-    public void loadQueueTableData(){
+    public void loadHrrnQueueTableData(){
         synchronized (model.processQueue){
             try {
                 for (int i = 0; i < model.processQueue.size(); i++) {
-                    queueTableModel.addRow(new Object[]{String.valueOf(model.processQueue.get(i).getProcessID()), model.processQueue.get(i).getServiceTime()});
+                    hrrnQueueTableModel.addRow(new Object[]{String.valueOf(model.processQueue.get(i).getProcessID()), model.processQueue.get(i).getServiceTime()});
                 }
-                queueTable.setModel(queueTableModel);
+                hrrnQueueTable.setModel(hrrnQueueTableModel);
             } catch (IndexOutOfBoundsException e){System.out.println("PQ Out of bounds");}
         }
     }
 
     /**
+     * This function updates the Process Queue Table as the Process Queue changes.
+     */
+    public void loadRrQueueTableData(){
+        synchronized (model.processQueue2){
+            try {
+                for (int i = 0; i < model.processQueue2.size(); i++) {
+                    rrQueueTableModel.addRow(new Object[]{String.valueOf(model.processQueue2.get(i).getProcessID()), model.processQueue2.get(i).getServiceTime()});
+                }
+                rrQueueTable.setModel(rrQueueTableModel);
+            } catch (IndexOutOfBoundsException e){System.out.println("PQ Out of bounds");}
+        }
+    }
+    /**
      * This function updates the Reports Area Table as the Finished List of Processes changes.
      */
-    public void loadFinishedList() {
+    public void loadHrrnFinishedList() {
         try {
             for (int i = 0; i < model.cpu1.getFinishedList().size(); i++) {
-                reportsTableModel.addRow(new Object[]{String.valueOf(model.cpu1.getFinishedList().get(i).getProcessID()),
+                hrrnReportsTableModel.addRow(new Object[]{String.valueOf(model.cpu1.getFinishedList().get(i).getProcessID()),
                         model.cpu1.getFinishedList().get(i).getArrivalTime(), model.cpu1.getFinishedList().get(i).getServiceTime(),
                         model.cpu1.getFinishedList().get(i).getFinishTime(), model.cpu1.getFinishedList().get(i).getTat(),
                         model.cpu1.getFinishedList().get(i).getnTat()});
                 //System.out.println("asdf:" + i);
             }
-            reportsTable.setModel(reportsTableModel);
+            hrrnReportsTable.setModel(hrrnReportsTableModel);
         } catch (IndexOutOfBoundsException e) {
             System.out.println("FinishedList Out of bounds");
         } catch (NullPointerException e) {
             System.out.println("FinishedList nullptr");
         }
         //System.out.println("flist size:" + model.cpu1.getFinishedList().size());
+    }
+    /**
+     * This function updates the Reports Area Table as the Finished List of Processes changes.
+     */
+    public void loadRrFinishedList() {
+        try {
+            for (int i = 0; i < model.cpu2.getFinishedList().size(); i++) {
+                rrReportsTableModel.addRow(new Object[]{String.valueOf(model.cpu2.getFinishedList().get(i).getProcessID()),
+                        model.cpu2.getFinishedList().get(i).getArrivalTime(), model.cpu2.getFinishedList().get(i).getServiceTime(),
+                        model.cpu2.getFinishedList().get(i).getFinishTime(), model.cpu2.getFinishedList().get(i).getTat(),
+                        model.cpu2.getFinishedList().get(i).getnTat()});
+                //System.out.println("asdf:" + i);
+            }
+            rrReportsTable.setModel(rrReportsTableModel);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("FinishedList Out of bounds");
+        } catch (NullPointerException e) {
+            System.out.println("FinishedList nullptr");
+        }
+        //System.out.println("flist size:" + model.cpu2.getFinishedList().size());
     }
 }
