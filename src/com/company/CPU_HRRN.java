@@ -23,6 +23,9 @@ public class CPU_HRRN implements Runnable {
     private ArrayList<Process> finishedQ;   // The list of all the finished processes
     private ArrayList<Process> waitQ;       // The list of processes that have entered the system but yet to run
     private PropertyChangeSupport c = new PropertyChangeSupport(this); // Helps monitor props for GUI
+    private int time;
+    double summednTAT = 0.0;
+    private double avgnTAT;
 
     /**
      * Constructor for the HRRN CPU. Initializes values
@@ -38,6 +41,7 @@ public class CPU_HRRN implements Runnable {
         this.finishedQ = finishedQ;
         this.waitQ = new ArrayList<>();
         currentRunning = new Process(0, "empty", 0,0);
+        time = 0;
     }
 
     /**
@@ -89,7 +93,7 @@ public class CPU_HRRN implements Runnable {
             synchronized (processQ) {
                 for (Process p : processQ) {
                     if (p.getArrivalTime() < soonestArrival) {
-                        soonestArrival = p.getArrivalTime() - Clock.getInstance().getTime();
+                        soonestArrival = p.getArrivalTime() - time;
                     }
                 }
             }
@@ -98,6 +102,7 @@ public class CPU_HRRN implements Runnable {
             try {
                 System.out.println("HRRN sleeps for " + (soonestArrival-1) + " timesteps");
                 Thread.sleep(((long) (soonestArrival-1) * timeStep) );
+                time += soonestArrival;
 
                 // Some inconsistencies when pausing. Sleep until just before next process and keep trying to add it
                 while(waitQ.isEmpty()) {
@@ -111,13 +116,13 @@ public class CPU_HRRN implements Runnable {
 
         // Find the process in the wait queue that has the highest response ratio
         // Response Ratio = (Wait time + Service Time)/Service Time
-        System.out.println("HRRN selecting process at time: " + Clock.getInstance().getTime());
+        System.out.println("HRRN selecting process at time: " + time);
         for (Process p : waitQ) {
             // Get the processes service time
             double s = p.getServiceTime();
 
             // Calculate the process's wait time = current time - arrival time
-            int currentTime = Clock.getInstance().getTime();
+            int currentTime = time;
             double w = currentTime - p.getArrivalTime();
 
             // Calculate response ratio and compare to the highest response ratio
@@ -146,13 +151,14 @@ public class CPU_HRRN implements Runnable {
             System.out.println("HRRN" + " running " + runningProcess.getProcessID() + " for " + runningProcess.getServiceTime());
 
             // Capture the local start time
-            localStart = Clock.getInstance().getTime();
+            localStart = time;
 
             // Run the job
             Thread.sleep((long) runningProcess.getServiceTime() * timeStep);
+            time += runningProcess.getServiceTime();
 
             // Get the job's finish time
-            runningProcess.setFinishTime(Clock.getInstance().getTime());
+            runningProcess.setFinishTime(time);
 
             // Calculate the turnaround time = finish time - arrival time
             runningProcess.setTat(runningProcess.getFinishTime() - runningProcess.getArrivalTime());
@@ -160,15 +166,17 @@ public class CPU_HRRN implements Runnable {
             // Calculate normalized turnaround time = tat / s
             runningProcess.setnTat(runningProcess.getTat() / runningProcess.getServiceTime());
 
-            // Calculate throughput
-            throughput = finishedQ.size() / (float) Clock.getInstance().getTime();
-            throughput = Math.round(throughput*1000.0) / 1000.0;
 
             // Add process to the finish queue
             synchronized (finishedQ) {
                 finishedQ.add(runningProcess);
             }
+            summednTAT += runningProcess.getnTat();
+            avgnTAT = summednTAT/finishedQ.size();
 
+            if (Double.isNaN(avgnTAT)) {
+                avgnTAT = 0.0;
+            }
             // Update the CPU status and run again
             setStatus("idle");
             setRunTime(0);
@@ -177,15 +185,35 @@ public class CPU_HRRN implements Runnable {
         } catch (InterruptedException e) {
             synchronized (processQ) {
                 // System was most likely paused
-                // Adjust the current process's service time
-                runningProcess.setServiceTime(runningProcess.getServiceTime() - (Clock.getInstance().getTime()- localStart) );
-
-                // Add the process back to the process list
-                processQ.add(0, runningProcess);
 
                 // Helpful pause debug
-                System.out.println(runningProcess.getProcessID() + " added back to the queue");
                 System.out.println("~~~~~~~~~~" + cpuName + " Process interrupted~~~~~~~~~~");
+
+                // Increment the time for the process running
+                time += runningProcess.getServiceTime();
+
+                // Set the job's finish time
+                runningProcess.setFinishTime(time);
+
+                // Calculate the turnaround time = finish time - arrival time
+                runningProcess.setTat(runningProcess.getFinishTime() - runningProcess.getArrivalTime());
+
+                // Calculate normalized turnaround time = tat / s
+                runningProcess.setnTat(runningProcess.getTat() / runningProcess.getServiceTime());
+
+                // Add process to the finish queue
+                synchronized (finishedQ) {
+                    finishedQ.add(runningProcess);
+                }
+                summednTAT += runningProcess.getnTat();
+                avgnTAT = summednTAT/finishedQ.size();
+
+                if (Double.isNaN(avgnTAT)) {
+                    avgnTAT = 0.0;
+                }
+                // Update the CPU status and run again
+                setStatus("idle");
+                setRunTime(0);
             }
         }
     }
@@ -197,7 +225,7 @@ public class CPU_HRRN implements Runnable {
         synchronized (processQ) {
             for (Process p : processQ) {
                 // Check each process's arrival in the processQ against current time
-                if (p.getArrivalTime() <= Clock.getInstance().getTime()) {
+                if (p.getArrivalTime() <= time) {
                     // check if the process is already in the waitQ
                     boolean inWaitQ = false;
                     for (Process w : waitQ) {
@@ -285,14 +313,6 @@ public class CPU_HRRN implements Runnable {
         return this.runTime;
     }
 
-    public double getThroughput() {
-        return throughput;
-    }
-
-    public void setThroughput(double throughput) {
-        this.throughput = throughput;
-    }
-
     public String getName() {
         return cpuName;
     }
@@ -303,5 +323,13 @@ public class CPU_HRRN implements Runnable {
 
     public String getStatus() {
         return status;
+    }
+
+    public double getAvgnTAT() {
+        return avgnTAT;
+    }
+
+    public void setAvgnTAT(double avgnTAT) {
+        this.avgnTAT = avgnTAT;
     }
 }

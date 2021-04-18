@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class PC {
-    private int status;
-    public int startTime;
-    public int currentTime;
     public ArrayList<Process> processQueue;
     public ArrayList<Process> finishedList;
     public ArrayList<Process> processQueue2;
@@ -19,15 +16,11 @@ public class PC {
     public CPU_HRRN cpu1;
     public CPU_RR cpu2;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
-    private Thread clockThread;
     private Thread cpu1Thread;
     private Thread cpu2Thread;
-    private Clock clock;
 
     //Constructor
     public PC() {
-        startTime = 0;
-        currentTime = 0;
         ArrayList<Process> processQueue = new ArrayList<>();
         ArrayList<Process> finishedList = new ArrayList<>();
         ArrayList<Process> processQueue2 = new ArrayList<>();
@@ -35,36 +28,15 @@ public class PC {
         cpu1 = new CPU_HRRN("CPU HRRN", processQueue, finishedList);
         cpu2 = new CPU_RR("CPU RR", processQueue2, finishedList2);
 
-        // Initialize a clock thread
-        clock = Clock.getInstance();
-        clockThread = getThread(clock);
-        clockThread = new Thread(clock);
-
-
-        // Initialized CPU Threads
+    // Initialized CPU Threads
         cpu1Thread = new Thread(cpu1);
         cpu2Thread = new Thread(cpu2);
-        cpu1Thread.start();
-        cpu2Thread.start();
-    }
-
-    // Throw interrupts to the clock
-    public void throwClockInterrupt()
-    {
-        clock.getTimer().cancel();
-        //clockThread.interrupt();
     }
 
     // Throw interrupts to the CPU
     public void throwCPUInterrupt() {
         cpu1Thread.interrupt();
         cpu2Thread.interrupt();
-    }
-
-    // For creating new threads after interrupts are thrown
-    public Thread getThread(Clock clock){
-        clockThread = new Thread(clock);
-        return clockThread;
     }
 
     public Thread getThreadCPU1(CPU_HRRN cpu){
@@ -125,18 +97,6 @@ public class PC {
         this.setProcessQueue2(q2);
         System.out.println(this.processQueue.size() + " processes added to the queue.");
     }
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl){
-        c.addPropertyChangeListener(pcl);
-    }
-    public void removePropertyChangeListener(PropertyChangeListener pcl){
-        c.removePropertyChangeListener(pcl);
-    }
     public void setProcessQueue(ArrayList<Process> pq){this.processQueue = pq;}
     public void setProcessQueue2(ArrayList<Process> pq){this.processQueue2 = pq;}
-    public ArrayList<Process> getProcessQueue(){return this.processQueue;}
-    public ArrayList<Process> getProcessQueue2(){return this.processQueue2;}
-    public void setFinishedList(ArrayList<Process> fl){this.finishedList = fl;}
-    public ArrayList<Process> getFinishedList(){return this.finishedList;}
-
 }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 public class Controller {
     public PC model;
     public GUI view;
-    public Clock clock;
 
     public Controller(PC model, GUI view) {
         this.model = model;
@@ -23,11 +22,7 @@ public class Controller {
                 if (!model.processQueue.isEmpty()) {
                     model.start();
 
-                    // Get the clock and set a thread for it.
-                    Thread clock = model.getThread(Clock.getInstance());
-                    clock.start();
-
-                    // Get the CPU threads and start them
+                 // Get the CPU threads and start them
                     Thread cpu1Thread = model.getThreadCPU1(model.cpu1);
                     Thread cpu2Thread = model.getThreadCPU2(model.cpu2);
                     cpu1Thread.start();
@@ -42,9 +37,6 @@ public class Controller {
 
     //Returns the process queue
     public ArrayList<Process> getQueue() {return model.processQueue;}
-
-    //Updates the GUI view of the table of processes
-    //public void updateTableView() {view.updateQueueTableView();}
 
     public PC getModel(){
         return this.model;

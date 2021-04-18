@@ -50,9 +50,9 @@ public class GUI extends DefaultTableModel {
     private DefaultTableModel hrrnReportsTableModel;
     private JTable hrrnReportsTable;
     private JScrollPane hrrnReportsScrollPane;
-    //Throughput variables
-    private JLabel hrrnCurrentThroughput;
-    private double hrrnThroughput;
+    //nTAT variables
+    private JLabel hrrnCurrentnTAT;
+    private double hrrnnTAT;
 
     //RR Panel variables
     //CPU2 variables
@@ -126,8 +126,7 @@ public class GUI extends DefaultTableModel {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                // If the pause button was clicked, interrupt the clock and cpus
-                model.throwClockInterrupt();
+                // If the pause button was clicked, interrupt the cpu
                 model.throwCPUInterrupt();
                 status.setText("System Paused");
             }
@@ -149,10 +148,7 @@ public class GUI extends DefaultTableModel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 model.cpu1.setTimeScale(Integer.parseInt(timeUnitField.getText()));
-                //TODO: IS THE BELOW LINE SUPPOSED TO BE COMMENTED?
-                //model.cpu2.setTimeScale(Integer.parseInt(timeUnitField.getText()));
-                Clock clock = Clock.getInstance();
-                clock.setTimeStep(Integer.parseInt(timeUnitField.getText()));
+                model.cpu2.setTimeScale(Integer.parseInt(timeUnitField.getText()));
             }
         });
         timeunit2 = new JLabel();
@@ -232,33 +228,32 @@ public class GUI extends DefaultTableModel {
         c.gridwidth = 2;
         main.add(hrrnTables, c);
 
-        //Creating the Current Throughput Field
-        hrrnCurrentThroughput = new JLabel();
-        // Initialize the throughput display
-        hrrnThroughput = model.cpu1.getThroughput();
-        if ( Double.isNaN(hrrnThroughput)){
-            hrrnThroughput = 0.0;
+        //Creating the Current nTAT Field
+        hrrnCurrentnTAT = new JLabel();
+        // Initialize the nTAT display
+        hrrnnTAT = model.cpu1.getAvgnTAT();
+        if ( Double.isNaN(hrrnnTAT)){
+            hrrnnTAT = 0.0;
         }
-        hrrnThroughput = model.cpu1.getThroughput();
-        hrrnCurrentThroughput.setText("Current Throughput: " + hrrnThroughput + " process/unit of time");
-        //Create a listener on CPU1 because it updates throughput on process finish
+        hrrnnTAT = model.cpu1.getAvgnTAT();
+        hrrnCurrentnTAT.setText(String.format("Current average nTAT: %.3f", hrrnnTAT));
+        //Create a listener on CPU1 because it updates nTAT on process finish
         model.cpu1.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                hrrnThroughput = model.cpu1.getThroughput();
-                hrrnThroughput = model.cpu1.getThroughput();
-                hrrnCurrentThroughput.setText("Current Throughput: " + hrrnThroughput + " process/unit of time");
+                hrrnnTAT = model.cpu1.getAvgnTAT();
+                hrrnCurrentnTAT.setText(String.format("Current average nTAT: %.3f", hrrnnTAT));
 
             }
         });
         // Show it
-        hrrnCurrentThroughput.setFont(hrrnCurrentThroughput.getFont().deriveFont(16.0f));
-        //Adding the Current Throughput Label to main frame
+        hrrnCurrentnTAT.setFont(hrrnCurrentnTAT.getFont().deriveFont(16.0f));
+        //Adding the Current nTAT Label to main frame
         c.gridx = 0;
         c.gridy = 5;
         c.gridheight = 1;
         c.weightx = 0.5;
-        main.add(hrrnCurrentThroughput, c);
+        main.add(hrrnCurrentnTAT, c);
 
 
 
@@ -360,13 +355,13 @@ public class GUI extends DefaultTableModel {
             rrnTAT = 0.0;
         }
         rrnTAT = model.cpu2.getAvgnTAT();
-        rrCurrentnTAT.setText("Current average nTAT: " + rrnTAT);
+        rrCurrentnTAT.setText(String.format("Current average nTAT: %.3f", rrnTAT));
         //Create a listener on CPU2 because it updates nTAT on process finish
         model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 rrnTAT = model.cpu2.getAvgnTAT();
-                rrCurrentnTAT.setText("Current average nTAT: " + rrnTAT);
+                rrCurrentnTAT.setText(String.format("Current average nTAT: %.3f", rrnTAT));
             }
         });
 
@@ -575,7 +570,7 @@ public class GUI extends DefaultTableModel {
         synchronized (model.cpu2.getReadyQueue()){
             try {
                 for (int i = 0; i < model.cpu2.getReadyQueue().size(); i++) {
-                    rrQueueTableModel.addRow(new Object[]{String.valueOf(model.cpu2.getReadyQueue().get(i).getProcessID()), model.cpu2.getReadyQueue().get(i).getServiceTime()});
+                    rrQueueTableModel.addRow(new Object[]{String.valueOf(model.cpu2.getReadyQueue().get(i).getProcessID()), model.cpu2.getReadyQueue().get(i).getRunTimeRemaining()});
                 }
                 rrQueueTable.setModel(rrQueueTableModel);
             } catch (IndexOutOfBoundsException e){System.out.println("RR RQ Out of bounds");}

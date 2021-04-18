@@ -49,24 +49,13 @@ public class CPU_RR implements Runnable {
     }
 
     public void SelectProcess() {
-        //Ensures only one thread will access the process queue at a time
-        //synchronized (processQueue) {
+
         if (!this.readyQueue.isEmpty()) {
-                /*if (this.time < this.readyQueue.get(0).getArrivalTime()) {
-                    Process p = this.readyQueue.remove(0);
-                    this.readyQueue.add(p);
-                    return;
-                }*/
             this.setProcess(this.readyQueue.remove(0));
             this.setStatus("Ready");
-            this.runTime = runThis.getRunTimeRemaining();
-
-            //update cpu panel on gui
+            this.setRunTime(runThis.getRunTimeRemaining());
+            populateReadyQueue();
         }
-        if (readyQueue.isEmpty()) {
-            this.setStatus("idle");
-        }
-        //}
     }
 
     public void RunProcess(Process p) {
@@ -74,37 +63,24 @@ public class CPU_RR implements Runnable {
             //p.setStartTime(Clock.getInstance().getTime());
             if (p.getRunTimeRemaining() < timeQuantum && p.getRunTimeRemaining() > 0) {
                 Thread.sleep((long) timeScale * p.getRunTimeRemaining());
-                //Thread.sleep(1);
                 time += p.getRunTimeRemaining();
             } else {
                 Thread.sleep((long) timeQuantum * timeScale);
                 time += timeQuantum;
-
             }
-            //System.out.println(Clock.getInstance().getTime());
 
             // Set CPU status
             this.setStatus("Running");
-            //System.out.println(this.name + " running " + p.getProcessID() + " for " + p.getServiceTime());
-
             p.setRunTimeRemaining(p.getRunTimeRemaining() - timeQuantum);
-            //System.out.println("clock instance: " + Clock.getInstance().getTime());
-            //System.out.println("curr time: " + time);
 
             if (p.getRunTimeRemaining() <= 0) {
 
                 p.setFinishTime(time);
-                //p.setFinishTime(Clock.getInstance().getTime());
                 p.setTat(p.getFinishTime() - p.getArrivalTime());
                 p.setnTat(p.getTat() / p.getServiceTime());
                 finishedList.add(p);
-                populateReadyQueue();
-                System.out.println("RR finished " + p.getProcessID() + " at " + time
-                        + "/" + Clock.getInstance().getTime());
-                //System.out.println("flist size:" + finishedList.size());
 
             } else {
-                populateReadyQueue();
                 readyQueue.add(p);
                 printRQ();
                 System.out.println(runThis.getProcessID() + " added back to RQ at " + time);
@@ -117,15 +93,6 @@ public class CPU_RR implements Runnable {
             if (Double.isNaN(avgnTAT)) {
                 avgnTAT = 0.0;
             }
-            // Current Throughput
-            //throughput = finishedList.size() / (float) Clock.getInstance().getTime();
-            if(time != 0){throughput = finishedList.size() / time;}
-
-            throughput = Math.round(throughput * 1000.0) / 1000.0;
-            if (Double.isNaN(throughput)) {
-                throughput = 0.0;
-            }
-            //System.out.println("Throughput: "+ throughput);
 
             this.setStatus("idle");
             if (readyQueue.isEmpty()) {
@@ -133,23 +100,24 @@ public class CPU_RR implements Runnable {
             }
             run();
         } catch (InterruptedException e) {
+            time += timeQuantum;
             synchronized (this.readyQueue) {
                 // System was most likely paused
-                // Adjust the current process's service time
-                //p.setRunTimeRemaining(p.getRunTimeRemaining() - (Clock.getInstance().getTime() - p.getStartTime()));
+                // Finish current time slice and adjust runtimes
                 if (p.getRunTimeRemaining() > timeQuantum) {
                     p.setRunTimeRemaining(p.getRunTimeRemaining() - timeQuantum);
                     readyQueue.add(p);
                     System.out.println(p.getProcessID() + " added back to ready queue");
                 } else if (p.getRunTimeRemaining() <= timeQuantum) {
+                    p.setFinishTime(time);
+                    p.setTat(p.getFinishTime() - p.getArrivalTime());
+                    p.setnTat(p.getTat() / p.getServiceTime());
                     finishedList.add(p);
-
                     summednTAT += p.getnTat();
                     avgnTAT = summednTAT/finishedList.size();
 
-                    System.out.println("RR finished " + p.getProcessID() + " at " + time
-                            + "/" + Clock.getInstance().getTime());
-                    System.out.println(p.getProcessID() + " added to finished list");
+                    System.out.println("RR finished " + p.getProcessID() + " at " + time);
+                    //System.out.println(p.getProcessID() + " added to finished list");
                 }
 
                 // State that the CPU was paused
@@ -276,13 +244,6 @@ public class CPU_RR implements Runnable {
     }
 
     /**
-     * This function returns throughput of the CPU.
-     */
-    public double getThroughput() {
-        return this.throughput;
-    }
-
-    /**
      * This function sets the runtime and fires a property change to its listeners.
      */
     public void setRunTime(int newRunTime) {
@@ -292,26 +253,33 @@ public class CPU_RR implements Runnable {
     }
 
     public void populateReadyQueue() {
-        //try{
-        for (int i = 0; i < processQueue.size(); i++)
-            if (processQueue.get(0).getArrivalTime() <= Clock.getInstance().getTime()) {
+        if(!processQueue.isEmpty()) {
+            for (int i = 0; i < processQueue.size(); i++)
+                System.out.println("Still in PQ: " + processQueue.size() + " " + processQueue.get(0).getProcessID());
+            if (processQueue.get(0).getArrivalTime() <= time) {
                 System.out.println(processQueue.get(0).getProcessID() + " added from PQ at " + time);
                 readyQueue.add(processQueue.remove(0));
-
-                //  }
-                //} catch (Exception e){System.out.println("populate ready queue exception");}
             }
+            if(readyQueue.isEmpty() && this.runTime == 0){
+                try {
+                    System.out.println("RQ empty");
+                    Thread.sleep(timeQuantum * timeScale);
+                    time += timeQuantum;
+                    run();
+                } catch (InterruptedException e){}
+            }
+        }
     }
 
     /**
-     * This function returns the name of the CPU.
+     * This function returns the time slice of the CPU.
      */
     public int getTimeQuantum() {
         return this.timeQuantum;
     }
 
     /**
-     * This function sets the name of the CPU.
+     * This function sets the time slice of the CPU.
      */
     public void setTimeQuantum(int i) {
         this.timeQuantum = i;
