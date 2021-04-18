@@ -236,13 +236,13 @@ public class GUI extends DefaultTableModel {
             hrrnnTAT = 0.0;
         }
         hrrnnTAT = model.cpu1.getAvgnTAT();
-        hrrnCurrentnTAT.setText(String.format("Current average nTAT: %.3f", hrrnnTAT));
+        hrrnCurrentnTAT.setText(String.format("HRRN Current average nTAT: %.3f", hrrnnTAT));
         //Create a listener on CPU1 because it updates nTAT on process finish
         model.cpu1.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 hrrnnTAT = model.cpu1.getAvgnTAT();
-                hrrnCurrentnTAT.setText(String.format("Current average nTAT: %.3f", hrrnnTAT));
+                hrrnCurrentnTAT.setText(String.format("HRRN Current average nTAT: %.3f", hrrnnTAT));
 
             }
         });
@@ -355,13 +355,13 @@ public class GUI extends DefaultTableModel {
             rrnTAT = 0.0;
         }
         rrnTAT = model.cpu2.getAvgnTAT();
-        rrCurrentnTAT.setText(String.format("Current average nTAT: %.3f", rrnTAT));
+        rrCurrentnTAT.setText(String.format("RR Current average nTAT: %.3f", rrnTAT));
         //Create a listener on CPU2 because it updates nTAT on process finish
         model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 rrnTAT = model.cpu2.getAvgnTAT();
-                rrCurrentnTAT.setText(String.format("Current average nTAT: %.3f", rrnTAT));
+                rrCurrentnTAT.setText(String.format("RR Current average nTAT: %.3f", rrnTAT));
             }
         });
 
