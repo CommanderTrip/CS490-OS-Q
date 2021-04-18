@@ -94,6 +94,7 @@ public class CPU_RR implements Runnable {
                 p.setTat(p.getFinishTime() - p.getArrivalTime());
                 p.setnTat(p.getTat() / p.getServiceTime());
                 finishedList.add(p);
+                populateReadyQueue();
                 System.out.println("RR finished " + p.getProcessID() + " at " + time
                         + "/" + Clock.getInstance().getTime());
                 //System.out.println("flist size:" + finishedList.size());
@@ -308,4 +309,18 @@ public class CPU_RR implements Runnable {
         }
         System.out.print("\n");
     }
+    /**
+     * This function sets the process queue.
+     */
+    public void setReadyQueue(ArrayList<Process> rq) {
+        this.readyQueue = rq;
+    }
+
+    /**
+     * This function returns the process queue.
+     */
+    public ArrayList<Process> getReadyQueue() {
+        return this.readyQueue;
+    }
+
 }

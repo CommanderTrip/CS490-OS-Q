@@ -426,7 +426,7 @@ public class GUI extends DefaultTableModel {
             public void run() {
 
                 rrQueueTableModel.setRowCount(0);
-                loadRrFinishedList();
+                loadRrReadyQueueTableData();
 
             }
         });
@@ -567,5 +567,19 @@ public class GUI extends DefaultTableModel {
             System.out.println("FinishedList nullptr");
         }
         //System.out.println("flist size:" + model.cpu2.getFinishedList().size());
+    }
+
+    /**
+     * This function updates the Process Queue Table as the Process Queue changes.
+     */
+    public void loadRrReadyQueueTableData(){
+        synchronized (model.cpu2.getReadyQueue()){
+            try {
+                for (int i = 0; i < model.cpu2.getReadyQueue().size(); i++) {
+                    rrQueueTableModel.addRow(new Object[]{String.valueOf(model.cpu2.getReadyQueue().get(i).getProcessID()), model.cpu2.getReadyQueue().get(i).getServiceTime()});
+                }
+                rrQueueTable.setModel(rrQueueTableModel);
+            } catch (IndexOutOfBoundsException e){System.out.println("RR RQ Out of bounds");}
+        }
     }
 }
