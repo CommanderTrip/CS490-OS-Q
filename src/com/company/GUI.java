@@ -75,9 +75,9 @@ public class GUI extends DefaultTableModel {
     private DefaultTableModel rrReportsTableModel;
     private JTable rrReportsTable;
     private JScrollPane rrReportsScrollPane;
-    //Throughput variables
-    private JLabel rrCurrentThroughput;
-    private double rrThroughput;
+    //Average nTAT variables
+    private JLabel rrCurrentnTAT;
+    private double rrnTAT;
 
     //Filepath Input variables
     String result;
@@ -344,8 +344,8 @@ public class GUI extends DefaultTableModel {
         //reportsTable.setModel(reportsTableModel);
         rrReportsScrollPane = new JScrollPane(rrReportsTable);
         rrTables.add(rrReportsScrollPane);
-        //Creating the Current Throughput Field
-        rrCurrentThroughput = new JLabel();
+        //Creating the Current average nTAT Field
+        rrCurrentnTAT = new JLabel();
         c.gridx = 2;
         c.gridy = 2;
         c.weightx = 0.5;
@@ -354,31 +354,30 @@ public class GUI extends DefaultTableModel {
         c.insets = new Insets(0,0,0,0);
         main.add(rrTables, c);
 
-        // Initialize the throughput display
-        rrThroughput = model.cpu2.getThroughput();
-        if ( Double.isNaN(rrThroughput)){
-            rrThroughput = 0.0;
+        // Initialize the nTAT display
+        rrnTAT = model.cpu2.getAvgnTAT();
+        if ( Double.isNaN(rrnTAT)){
+            rrnTAT = 0.0;
         }
-        rrThroughput = model.cpu2.getThroughput();
-        rrCurrentThroughput.setText("Current Throughput: " + rrThroughput + " process/unit of time");
-        //Create a listener on CPU2 because it updates throughput on process finish
+        rrnTAT = model.cpu2.getAvgnTAT();
+        rrCurrentnTAT.setText("Current average nTAT: " + rrnTAT);
+        //Create a listener on CPU2 because it updates nTAT on process finish
         model.cpu2.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                rrThroughput = model.cpu2.getThroughput();
-                rrThroughput = model.cpu2.getThroughput();
-                rrCurrentThroughput.setText("Current Throughput: " + rrThroughput + " process/unit of time");
+                rrnTAT = model.cpu2.getAvgnTAT();
+                rrCurrentnTAT.setText("Current average nTAT: " + rrnTAT);
             }
         });
 
         // Show it
-        rrCurrentThroughput.setFont(rrCurrentThroughput.getFont().deriveFont(16.0f));
-        //Adding the Current Throughput Label to main frame
+        rrCurrentnTAT.setFont(rrCurrentnTAT.getFont().deriveFont(16.0f));
+        //Adding the Current nTAT Label to main frame
         c.gridx = 2;
         c.gridy = 5;
         c.gridheight = 1;
         c.weightx = 0.5;
-        main.add(rrCurrentThroughput, c);
+        main.add(rrCurrentnTAT, c);
 
         mainMenu.setVisible(true);
 
@@ -426,7 +425,7 @@ public class GUI extends DefaultTableModel {
             public void run() {
 
                 rrQueueTableModel.setRowCount(0);
-                loadRrFinishedList();
+                loadRrReadyQueueTableData();
 
             }
         });
@@ -567,5 +566,19 @@ public class GUI extends DefaultTableModel {
             System.out.println("FinishedList nullptr");
         }
         //System.out.println("flist size:" + model.cpu2.getFinishedList().size());
+    }
+
+    /**
+     * This function updates the Process Queue Table as the Process Queue changes.
+     */
+    public void loadRrReadyQueueTableData(){
+        synchronized (model.cpu2.getReadyQueue()){
+            try {
+                for (int i = 0; i < model.cpu2.getReadyQueue().size(); i++) {
+                    rrQueueTableModel.addRow(new Object[]{String.valueOf(model.cpu2.getReadyQueue().get(i).getProcessID()), model.cpu2.getReadyQueue().get(i).getServiceTime()});
+                }
+                rrQueueTable.setModel(rrQueueTableModel);
+            } catch (IndexOutOfBoundsException e){System.out.println("RR RQ Out of bounds");}
+        }
     }
 }
