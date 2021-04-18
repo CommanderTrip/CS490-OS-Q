@@ -19,7 +19,7 @@ public class Controller {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //If the process queue is not empty: do these things
-                if (!model.processQueue.isEmpty()) {
+                if (!model.cpu1.getProcessQueue().isEmpty() || model.cpu2.getProcessQueue().isEmpty()) {
                     model.start();
 
                  // Get the CPU threads and start them
