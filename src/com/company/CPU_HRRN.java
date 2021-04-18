@@ -53,10 +53,7 @@ public class CPU_HRRN implements Runnable {
             // Choose the next process according to HRRN
             Process nextProcess = selectNextProcesses();
 
-            if (nextProcess == null) {
-                System.out.println(cpuName + "'s wait queue was empty.");
-                run();
-            } else {
+            if (nextProcess != null) {
                 // Fetch the process out of the process q so only this cpu can touch it
                 synchronized (processQ) {
                     if (!processQ.isEmpty()) {
@@ -84,12 +81,37 @@ public class CPU_HRRN implements Runnable {
         double hrr = -1;
         Process next = null;
 
+        //System.out.println("HRRN waitq is size: "+ waitQ.size() );
+        // there is no process to select if the waitQ is empty
         if (waitQ.isEmpty()) {
-            return null;
+            // Found out when the next process is
+            int soonestArrival = 10000;
+            synchronized (processQ) {
+                for (Process p : processQ) {
+                    if (p.getArrivalTime() < soonestArrival) {
+                        soonestArrival = p.getArrivalTime() - Clock.getInstance().getTime();
+                    }
+                }
+            }
+
+            // Sleep until just before the next process arrives
+            try {
+                System.out.println("HRRN sleeps for " + (soonestArrival-1) + " timesteps");
+                Thread.sleep(((long) (soonestArrival-1) * timeStep) );
+
+                // Some inconsistencies when pausing. Sleep until just before next process and keep trying to add it
+                while(waitQ.isEmpty()) {
+                    addToWaitQ();
+                }
+            } catch (InterruptedException e) {
+                System.out.println(cpuName + "'s sleep for next process was interrupted.");
+                return null;
+            }
         }
 
         // Find the process in the wait queue that has the highest response ratio
         // Response Ratio = (Wait time + Service Time)/Service Time
+        System.out.println("HRRN selecting process at time: " + Clock.getInstance().getTime());
         for (Process p : waitQ) {
             // Get the processes service time
             double s = p.getServiceTime();
@@ -100,6 +122,7 @@ public class CPU_HRRN implements Runnable {
 
             // Calculate response ratio and compare to the highest response ratio
             double rr = (w + s) / s;
+            System.out.println("HRRN RRs: \t"+p.getProcessID() + " " + "( " + w + " + " + s + " )" + "/" + s + " = " + rr);
             if (rr > hrr) {
                 hrr = rr;
                 next = p;
@@ -120,7 +143,7 @@ public class CPU_HRRN implements Runnable {
         try {
             // Set CPU satus
             setStatus("Running");
-            System.out.println(cpuName + " running " + runningProcess.getProcessID() + " for " + runningProcess.getServiceTime());
+            System.out.println("HRRN" + " running " + runningProcess.getProcessID() + " for " + runningProcess.getServiceTime());
 
             // Capture the local start time
             localStart = Clock.getInstance().getTime();
@@ -173,17 +196,21 @@ public class CPU_HRRN implements Runnable {
     private void addToWaitQ() {
         synchronized (processQ) {
             for (Process p : processQ) {
-                boolean inWaitQ = false;
-               // Check if the process is already in the wait queue
-                for (Process process : waitQ) {
-                    if (process.getProcessID().equals(p.getProcessID())) {
-                        inWaitQ = true;
-                        break;
+                // Check each process's arrival in the processQ against current time
+                if (p.getArrivalTime() <= Clock.getInstance().getTime()) {
+                    // check if the process is already in the waitQ
+                    boolean inWaitQ = false;
+                    for (Process w : waitQ) {
+                        if (w.getProcessID().equals(p.getProcessID())) {
+                            inWaitQ = true;
+                            break;
+                        }
                     }
-                }
-                // Add it to the wait queue if it is not already there
-                if (!inWaitQ) {
-                    if (p.getArrivalTime() < Clock.getInstance().getTime()) waitQ.add(p);
+                    // Add it to the waitQ if it's not there
+                    if (!inWaitQ){
+                        System.out.println("HRRN: adding " + p.getProcessID() + " to the WaitQ");
+                        waitQ.add(p);
+                    }
                 }
             }
         }
