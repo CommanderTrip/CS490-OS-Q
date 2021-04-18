@@ -17,6 +17,9 @@ public class CPU_RR implements Runnable {
     private int timeQuantum;
     private int time = 0;
     private ArrayList<Process> readyQueue;
+    private double avgnTAT;
+    double summednTAT;
+
 
     public CPU_RR() {
     }
@@ -29,6 +32,7 @@ public class CPU_RR implements Runnable {
         this.runThis = new Process(0, "empty", 0, 0);
         this.timeQuantum = 2;
         this.readyQueue = new ArrayList<>();
+        double summednTAT = 0.0;
     }
 
     public void run() {
@@ -106,7 +110,13 @@ public class CPU_RR implements Runnable {
                 System.out.println(runThis.getProcessID() + " added back to RQ at " + time);
 
             }
+            //Current average nTAT
+            summednTAT += p.getnTat();
+            avgnTAT = summednTAT/finishedList.size();
 
+            if (Double.isNaN(avgnTAT)) {
+                avgnTAT = 0.0;
+            }
             // Current Throughput
             //throughput = finishedList.size() / (float) Clock.getInstance().getTime();
             if(time != 0){throughput = finishedList.size() / time;}
@@ -133,6 +143,10 @@ public class CPU_RR implements Runnable {
                     System.out.println(p.getProcessID() + " added back to ready queue");
                 } else if (p.getRunTimeRemaining() <= timeQuantum) {
                     finishedList.add(p);
+
+                    summednTAT += p.getnTat();
+                    avgnTAT = summednTAT/finishedList.size();
+
                     System.out.println("RR finished " + p.getProcessID() + " at " + time
                             + "/" + Clock.getInstance().getTime());
                     System.out.println(p.getProcessID() + " added to finished list");
@@ -323,4 +337,11 @@ public class CPU_RR implements Runnable {
         return this.readyQueue;
     }
 
+    public double getAvgnTAT() {
+        return avgnTAT;
+    }
+
+    public void setAvgnTAT(double avgnTAT) {
+        this.avgnTAT = avgnTAT;
+    }
 }
