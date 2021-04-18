@@ -305,14 +305,14 @@ public class GUI extends DefaultTableModel {
         timeSlice.setBackground(new Color(230, 245, 255));
         timeSliceLength = new JLabel();
         timeSliceLength.setText("Round Robin Time Slice Length");
-        timeSliceField = new JTextField(Integer.toString(model.cpu2.getTimeScale()),10);
+        timeSliceField = new JTextField(Integer.toString(model.cpu2.getTimeQuantum()),10);
         timeSliceField.setColumns(4);
         //Action listener for the data entered for Time Slice Length
         timeSliceField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                model.cpu2.setTimeScale(Integer.parseInt(timeSliceField.getText()));
-                //System.out.println(model.cpu2.getTimeScale());
+                model.cpu2.setTimeQuantum(Integer.parseInt(timeSliceField.getText()));
+                //System.out.println(model.cpu2.getTimeQuantum());
             }
         });
         timeSlice.add(timeSliceLength);
