@@ -418,10 +418,9 @@ public class GUI extends DefaultTableModel {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-
                 rrQueueTableModel.setRowCount(0);
                 loadRrReadyQueueTableData();
-
+                loadRrQueueTableData();
             }
         });
     }
@@ -446,7 +445,6 @@ public class GUI extends DefaultTableModel {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-
                 rrReportsTableModel.setRowCount(0);
                 loadRrFinishedList();
             }
@@ -515,6 +513,7 @@ public class GUI extends DefaultTableModel {
     public void loadRrQueueTableData(){
         synchronized (model.processQueue2){
             try {
+                if(!model.processQueue2.isEmpty()){rrQueueTableModel.addRow(new Object[]{"--Waiting Process Queue--", "--"});}
                 for (int i = 0; i < model.processQueue2.size(); i++) {
                     rrQueueTableModel.addRow(new Object[]{String.valueOf(model.processQueue2.get(i).getProcessID()), model.processQueue2.get(i).getServiceTime()});
                 }
@@ -569,6 +568,7 @@ public class GUI extends DefaultTableModel {
     public void loadRrReadyQueueTableData(){
         synchronized (model.cpu2.getReadyQueue()){
             try {
+                if(!model.cpu2.getReadyQueue().isEmpty()){rrQueueTableModel.addRow(new Object[]{"--Ready Queue--", "--"});}
                 for (int i = 0; i < model.cpu2.getReadyQueue().size(); i++) {
                     rrQueueTableModel.addRow(new Object[]{String.valueOf(model.cpu2.getReadyQueue().get(i).getProcessID()), model.cpu2.getReadyQueue().get(i).getRunTimeRemaining()});
                 }

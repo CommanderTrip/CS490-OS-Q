@@ -60,7 +60,6 @@ public class CPU_RR implements Runnable {
 
     public void RunProcess(Process p) {
         try {
-            //p.setStartTime(Clock.getInstance().getTime());
             if (p.getRunTimeRemaining() < timeQuantum && p.getRunTimeRemaining() > 0) {
                 Thread.sleep((long) timeScale * p.getRunTimeRemaining());
                 time += p.getRunTimeRemaining();
@@ -74,22 +73,19 @@ public class CPU_RR implements Runnable {
             p.setRunTimeRemaining(p.getRunTimeRemaining() - timeQuantum);
 
             if (p.getRunTimeRemaining() <= 0) {
-
                 p.setFinishTime(time);
                 p.setTat(p.getFinishTime() - p.getArrivalTime());
                 p.setnTat(p.getTat() / p.getServiceTime());
                 finishedList.add(p);
-
             } else {
                 readyQueue.add(p);
-                printRQ();
-                System.out.println(runThis.getProcessID() + " added back to RQ at " + time);
-
+                //printRQ();
+                //System.out.println(runThis.getProcessID() + " added back to RQ at " + time);
             }
+
             //Current average nTAT
             summednTAT += p.getnTat();
             avgnTAT = summednTAT/finishedList.size();
-
             if (Double.isNaN(avgnTAT)) {
                 avgnTAT = 0.0;
             }
@@ -163,7 +159,7 @@ public class CPU_RR implements Runnable {
      * This function returns the run time of the current process.
      */
     public int getTime() {
-        return runThis.getServiceTime();
+        return this.time;
     }
 
     /**

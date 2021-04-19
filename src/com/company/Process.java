@@ -13,7 +13,6 @@ public class Process{
     private float nTat;
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
     private int runTimeRemaining;
-    private int startTime;
 
     //Constructor
     Process() {
@@ -42,14 +41,6 @@ public class Process{
         this.serviceTime = newServiceTime;
         c.firePropertyChange("serviceTime", oldServiceTime, newServiceTime);
     }
-
-    /*public void addPropertyChangeListener(PropertyChangeListener pcl){
-        c.addPropertyChangeListener(pcl);
-    }
-    public void removePropertyChangeListener(PropertyChangeListener pcl){
-        c.removePropertyChangeListener(pcl);
-    }
-*/
 
     /**
      * This function returns the name of the process.
@@ -133,20 +124,6 @@ public class Process{
      */
     public void setFinishTime(int finishTime) {
         this.finishTime = finishTime;
-    }
-
-    /**
-     * This function returns the start time.
-     */
-    public int getStartTime() {
-        return startTime;
-    }
-
-    /**
-     * This function sets the start time.
-     */
-    public void setStartTime(int startTime) {
-        this.runTimeRemaining = startTime;
     }
 
     /**

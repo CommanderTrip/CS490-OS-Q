@@ -100,7 +100,7 @@ public class CPU_HRRN implements Runnable {
 
             // Sleep until just before the next process arrives
             try {
-                System.out.println("HRRN sleeps for " + (soonestArrival-1) + " timesteps");
+                //System.out.println("HRRN sleeps for " + (soonestArrival-1) + " timesteps");
                 Thread.sleep(((long) (soonestArrival-1) * timeStep) );
                 time += soonestArrival;
 
@@ -116,7 +116,7 @@ public class CPU_HRRN implements Runnable {
 
         // Find the process in the wait queue that has the highest response ratio
         // Response Ratio = (Wait time + Service Time)/Service Time
-        System.out.println("HRRN selecting process at time: " + time);
+        //System.out.println("HRRN selecting process at time: " + time);
         for (Process p : waitQ) {
             // Get the processes service time
             double s = p.getServiceTime();
@@ -127,7 +127,7 @@ public class CPU_HRRN implements Runnable {
 
             // Calculate response ratio and compare to the highest response ratio
             double rr = (w + s) / s;
-            System.out.println("HRRN RRs: \t"+p.getProcessID() + " " + "( " + w + " + " + s + " )" + "/" + s + " = " + rr);
+            //System.out.println("HRRN RRs: \t"+p.getProcessID() + " " + "( " + w + " + " + s + " )" + "/" + s + " = " + rr);
             if (rr > hrr) {
                 hrr = rr;
                 next = p;
@@ -148,7 +148,7 @@ public class CPU_HRRN implements Runnable {
         try {
             // Set CPU satus
             setStatus("Running");
-            System.out.println("HRRN" + " running " + runningProcess.getProcessID() + " for " + runningProcess.getServiceTime());
+            //System.out.println("HRRN" + " running " + runningProcess.getProcessID() + " for " + runningProcess.getServiceTime());
 
             // Capture the local start time
             localStart = time;
