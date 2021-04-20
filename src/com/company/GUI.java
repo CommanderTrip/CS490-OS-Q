@@ -425,7 +425,7 @@ public class GUI extends DefaultTableModel {
             public void run() {
                 rrQueueTableModel.setRowCount(0);   //Resets the table model length
                 loadRrReadyQueueTableData();    //Updates the ready queue within the RR process queue table
-                //loadRrQueueTableData(); //Updates the waiting queue within the RR process queue table
+                loadRrQueueTableData(); //Updates the waiting queue within the RR process queue table
             }
         });
     }
@@ -490,7 +490,7 @@ public class GUI extends DefaultTableModel {
     public void loadRrQueueTableData(){
         synchronized (model.processQueue2){
             try {
-                //if(!model.processQueue2.isEmpty()){rrQueueTableModel.addRow(new Object[]{"--Waiting Process Queue--", "--"});}
+                if(!model.processQueue2.isEmpty()){rrQueueTableModel.addRow(new Object[]{"--Waiting Process Queue--", "--"});}
                 for (int i = 0; i < model.processQueue2.size(); i++) {
                     rrQueueTableModel.addRow(new Object[]{String.valueOf(model.processQueue2.get(i).getProcessID()), model.processQueue2.get(i).getServiceTime()}); //Add each row of data to the table model
                 }
@@ -506,7 +506,7 @@ public class GUI extends DefaultTableModel {
     public void loadRrReadyQueueTableData(){
         synchronized (model.cpu2.getReadyQueue()){
             try {
-                //if(!model.cpu2.getReadyQueue().isEmpty()){rrQueueTableModel.addRow(new Object[]{"--Ready Queue--", "--"});}
+                if(!model.cpu2.getReadyQueue().isEmpty()){rrQueueTableModel.addRow(new Object[]{"--Ready Queue--", "--"});}
                 for (int i = 0; i < model.cpu2.getReadyQueue().size(); i++) {
                     rrQueueTableModel.addRow(new Object[]{String.valueOf(model.cpu2.getReadyQueue().get(i).getProcessID()), model.cpu2.getReadyQueue().get(i).getRunTimeRemaining()});  //Add each row of data to the table model
                 }

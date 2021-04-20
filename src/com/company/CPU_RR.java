@@ -3,7 +3,15 @@ package com.company;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-
+/**This CPU employs round robin scheduling to ensure all processes get a fair amount
+ * of processing time.  When processes arrive at the CPU from the system's process
+ * queue they are placed into the CPU's ready queue in a first come first serve manner.
+ * Each process spends the selected length of time on the CPU and is then placed back
+ * into the ready queue if execution is not complete.
+ *
+ * If the system is paused, the CPU will complete execution of the current cycle and
+ * then pause.
+ * */
 public class CPU_RR implements Runnable {
     private String name;
     private String status; //running, idle, paused
@@ -35,21 +43,24 @@ public class CPU_RR implements Runnable {
         double summednTAT = 0.0;
     }
 
+    /**If the system process queue is not empty the CPU will add arriving processes to
+     * its' ready queue.  When there is at least one process in the ready queue, the
+     * CPU will run that process for the desired time slice.*/
     public void run() {
-        // Only run if the process queue is not empty
         if (!processQueue.isEmpty()) {
             populateReadyQueue();
         }
         if (!readyQueue.isEmpty()) {
-            // Grab the next process
             this.SelectProcess();
-            // Run that process
             this.RunProcess(runThis);
         }
     }
 
+    /**This method to select a process will remove the first item from the process
+     * queue and begin execution on that process.  Here the remaining service time
+     * for the process is updated and any new arriving processes are added to the
+     * ready queue.*/
     public void SelectProcess() {
-
         if (!this.readyQueue.isEmpty()) {
             this.setProcess(this.readyQueue.remove(0));
             this.setStatus("Ready");
@@ -58,6 +69,11 @@ public class CPU_RR implements Runnable {
         }
     }
 
+    /**This method runs the selected process.  The thread sleeps for the time slice
+     * giving the feel of real-time execution.  If the process has more service time
+     * remaining it is added back to the wait queue.  If the process is done executing
+     * during this time slice, it will update the process' finish time and compute
+     * the turnaround time.*/
     public void RunProcess(Process p) {
         try {
             if (p.getRunTimeRemaining() < timeQuantum && p.getRunTimeRemaining() > 0) {
@@ -96,6 +112,8 @@ public class CPU_RR implements Runnable {
             }
             run();
         } catch (InterruptedException e) {
+            /**If the process is interrupted the current cycle completes and the process
+             * is added back to the ready queue or to the finished queue*/
             time += timeQuantum;
             synchronized (this.readyQueue) {
                 // System was most likely paused
@@ -248,6 +266,9 @@ public class CPU_RR implements Runnable {
         c.firePropertyChange("runTime", oldRunTime, newRunTime);
     }
 
+    /**This method populates the ready queue with processes that have arrived from the
+     * process queue.  If no processes are available and there are still processes to arrive,
+     * the CPU will sleep for the time slice.*/
     public void populateReadyQueue() {
         if(!processQueue.isEmpty()) {
             for (int i = 0; i < processQueue.size(); i++)
