@@ -4,13 +4,13 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 public class Process{
-    private int arrivalTime;
-    private String processID;
-    private int serviceTime;
-    private int priority;
-    private int finishTime;
-    private float tat;
-    private float nTat;
+    private int arrivalTime;    //Variable that stores the arrival time of the process
+    private String processID;   //Variable that stores the processID / process name
+    private int serviceTime;    //Variable that stores the time the process needs on the CPU
+    private int priority;   //Variable that stores the priority of the process
+    private int finishTime; //Variable that stores the finish time of the process
+    private float tat;  //Variable that stores the calculated TAT (turnaround time) of the process
+    private float nTat; //Variable that stores the calculated nTAT (normalized turnaround time) of the process
     private PropertyChangeSupport c = new PropertyChangeSupport(this);
     private int runTimeRemaining;
 

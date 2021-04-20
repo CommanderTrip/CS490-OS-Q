@@ -7,9 +7,9 @@ public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                PC model = new PC();
-                GUI view = new GUI(model);
-                Controller controller = new Controller(model, view);
+                PC model = new PC();    //Initializes the PC
+                GUI view = new GUI(model);  //Initializes the GUI
+                Controller controller = new Controller(model, view);    //Initializes the controller
             }
         });
     }
