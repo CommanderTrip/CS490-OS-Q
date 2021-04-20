@@ -409,8 +409,8 @@ public class GUI extends DefaultTableModel {
             public void run() {
 
                 hrrnQueueTableModel.setRowCount(0); //Resets the table model length
-                //loadHrrnQueueTableData();   //Updates the HRRN waiting queue
-                loadHrrnWaitQueueTableData();
+                loadHrrnQueueTableData();   //Adds the system's process queue to the table
+                //loadHrrnWaitQueueTableData(); //Adds the HRRN's wait queue to the table
             }
         });
     }
