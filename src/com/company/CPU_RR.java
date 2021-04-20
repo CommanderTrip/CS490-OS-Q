@@ -251,14 +251,14 @@ public class CPU_RR implements Runnable {
     public void populateReadyQueue() {
         if(!processQueue.isEmpty()) {
             for (int i = 0; i < processQueue.size(); i++)
-                System.out.println("Still in PQ: " + processQueue.size() + " " + processQueue.get(0).getProcessID());
+                //System.out.println("Still in PQ: " + processQueue.size() + " " + processQueue.get(0).getProcessID());
             if (processQueue.get(0).getArrivalTime() <= time) {
-                System.out.println(processQueue.get(0).getProcessID() + " added from PQ at " + time);
+                //System.out.println(processQueue.get(0).getProcessID() + " added from PQ at " + time);
                 readyQueue.add(processQueue.remove(0));
             }
             if(readyQueue.isEmpty() && this.runTime == 0){
                 try {
-                    System.out.println("RQ empty");
+                    //System.out.println("RQ empty");
                     Thread.sleep(timeQuantum * timeScale);
                     time += timeQuantum;
                     run();
@@ -283,9 +283,9 @@ public class CPU_RR implements Runnable {
 
     public void printRQ(){
         for (int i = 0; i < readyQueue.size(); i++){
-            System.out.print("RQ: " + readyQueue.get(i).getProcessID() + "/" + readyQueue.get(i).getRunTimeRemaining() + " -- ");
+            //System.out.print("RQ: " + readyQueue.get(i).getProcessID() + "/" + readyQueue.get(i).getRunTimeRemaining() + " -- ");
         }
-        System.out.print("\n");
+        //System.out.print("\n");
     }
     /**
      * This function sets the process queue.

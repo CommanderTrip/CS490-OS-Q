@@ -409,8 +409,8 @@ public class GUI extends DefaultTableModel {
             public void run() {
 
                 hrrnQueueTableModel.setRowCount(0); //Resets the table model length
-                loadHrrnQueueTableData();   //Updates the HRRN waiting queue
-
+                //loadHrrnQueueTableData();   //Updates the HRRN waiting queue
+                loadHrrnWaitQueueTableData();
             }
         });
     }
@@ -473,6 +473,16 @@ public class GUI extends DefaultTableModel {
         }
     }
 
+    public void loadHrrnWaitQueueTableData(){
+        synchronized (model.cpu1.getWaitQ()){
+            try {
+                for (int i = 0; i < model.cpu1.getWaitQ().size(); i++) {
+                    hrrnQueueTableModel.addRow(new Object[]{String.valueOf(model.cpu1.getWaitQ().get(i).getProcessID()), model.cpu1.getWaitQ().get(i).getServiceTime()}); //Add each row of data to the table model
+                }
+                hrrnQueueTable.setModel(hrrnQueueTableModel);   //Update the HRRN waiting queue table with the new table model
+            } catch (IndexOutOfBoundsException e){System.out.println("PQ Out of bounds");}
+        }
+    }
     /**
      * This function updates the Process Queue Table as the Process Queue changes.
      * This is called by the updateRrQueueTableView function.
