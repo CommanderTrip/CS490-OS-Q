@@ -332,4 +332,12 @@ public class CPU_HRRN implements Runnable {
     public void setAvgnTAT(double avgnTAT) {
         this.avgnTAT = avgnTAT;
     }
+
+    public ArrayList<Process> getWaitQ() {
+        return waitQ;
+    }
+
+    public void setWaitQ(ArrayList<Process> wq) {
+        this.waitQ = wq;
+    }
 }
